@@ -45,15 +45,10 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 # Sourcing framework hooks
 source $ZSH/oh-my-zsh.sh
 
-
 # --- 4. Plugin Ecosystem Theme Variables ---
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8a8a,bold"
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
 
-# --- 5. Load Emscripten Environment Variables ---
-echo 'source /etc/profile.d/emscripten.sh' >> ~/.zshrc
-
-# --- 6. Powerlevel10k Theme File Sync ---
+# --- 5. Powerlevel10k Theme File Sync ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-source /etc/profile.d/emscripten.sh
