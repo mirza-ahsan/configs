@@ -6,7 +6,7 @@ local keymap = vim.keymap
 -- General & Navigation Remaps
 -----------------------------------------------------------
 
--- Yanking 
+-- Yanking
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
@@ -38,7 +38,6 @@ keymap.set("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
 keymap.set("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
 keymap.set("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
 keymap.set("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
-
 
 -----------------------------------------------------------
 -- Custom Compilers & Runners
