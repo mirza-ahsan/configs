@@ -59,13 +59,28 @@ return {
         local capabilities = require("blink.cmp").get_lsp_capabilities()
 
         -- Neovim 0.11+ Native LSP Configuration
-        local servers = { "pylsp", "rust_analyzer", "ts_ls", "gopls", "lua_ls" }
+        local servers = { "rust_analyzer", "ts_ls", "gopls", "lua_ls" }
         for _, server in ipairs(servers) do
             vim.lsp.config(server, {
                 capabilities = capabilities,
             })
             vim.lsp.enable(server)
         end
+
+        -- pylsp: set pycodestyle line length to 110
+        vim.lsp.config("pylsp", {
+            capabilities = capabilities,
+            settings = {
+                pylsp = {
+                    plugins = {
+                        pycodestyle = {
+                            maxLineLength = 110,
+                        },
+                    },
+                },
+            },
+        })
+        vim.lsp.enable("pylsp")
 
         -- clangd: disable auto-inserting #include on completion
         vim.lsp.config("clangd", {

@@ -15,6 +15,14 @@ return {
             dart = { "dart_format" },
             lua = { "stylua" },
         },
+        formatters = {
+            black = {
+                prepend_args = { "--line-length", "110" },
+            },
+            isort = {
+                prepend_args = { "--line-length", "110" },
+            },
+        },
         format_on_save = {
             timeout_ms = 500,
             lsp_format = "fallback", -- If a formatter is missing, it asks your LSP to try its best
