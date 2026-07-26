@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Google Classroom
+Exec=chromium --app=https://classroom.google.com/u/1/
+Icon=/home/aztrek/.local/share/icons/classroom.svg
+Type=Application
+Categories=Network;
+StartupWMClass=chrome-classroom.google.com__u_1_-Default

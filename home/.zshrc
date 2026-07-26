@@ -3,39 +3,43 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# --- 1. Custom Core Functions & System Environment Drivers ---
-export TF_FORCE_GPU_ALLOW_GROWTH=true
-
+# --- 1. Environment & Log Drivers ---
 # Silence TensorFlow absolute log spam system-wide
 export TF_CPP_MIN_LOG_LEVEL='2'
-export TF_ENABLE_ONEDNN_OPTS='0'
 
-# Auto-Detecting TensorFlow CUDA Engine (Dynamic Version)
-add_tf_cuda_paths() {
-    if [ -n "$VIRTUAL_ENV" ]; then
-        local PY_VER=$(python -c "import sys; print(f'python{sys.version_info.major}.{sys.version_info.minor}')")
-        local SITE_PACKAGES="$VIRTUAL_ENV/lib/$PY_VER/site-packages"
-        if [ -d "$SITE_PACKAGES/nvidia" ]; then
-            # Filter out old virtual env paths to prevent path bloat
-            export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | awk -v RS=: -v ORS=: '!/site-packages\/nvidia/')
-            # Append the current active virtual environment paths
-            export LD_LIBRARY_PATH="$SITE_PACKAGES/nvidia/cuda_runtime/lib:$SITE_PACKAGES/nvidia/cudnn/lib:$SITE_PACKAGES/nvidia/cublas/lib:$SITE_PACKAGES/nvidia/cufft/lib:$SITE_PACKAGES/nvidia/curand/lib:$SITE_PACKAGES/nvidia/cusolver/lib:$SITE_PACKAGES/nvidia/cusparse/lib:$LD_LIBRARY_PATH"
-        fi
-    fi
-}
+# --- 2. Zsh Performance & Latency Optimizations ---
+# Eliminate ESC key / multi-key sequence delay (default: 40, 1 = 10ms response)
+export KEYTIMEOUT=1
 
-# Run automatically every time a new prompt draws or an environment activates
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd add_tf_cuda_paths
+# Disable Oh My Zsh auto-update check at startup to eliminate prompt lag
+DISABLE_AUTO_UPDATE="true"
+DISABLE_UPDATE_PROMPT="true"
 
+# Disable paste magic functions to eliminate paste latency
+DISABLE_MAGIC_FUNCTIONS="true"
 
-# --- 2. Shell Shortcuts & Global Aliases ---
+# Speed up git status prompt in large repositories
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# History Optimization
+HISTSIZE=100000
+SAVEHIST=100000
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+
+# Completion Engine Caching for Zero Latency
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
+zstyle ':completion:*' rehash true
+
+# --- 3. Shell Shortcuts & Global Aliases ---
 alias fastfetch="fastfetch --logo arch"
 alias :q="exit"
 bindkey -s '^L' 'clear\n'
 
-
-# --- 3. Oh My Zsh Framework Core Configuration ---
+# --- 4. Oh My Zsh Framework Core Configuration ---
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
@@ -45,10 +49,14 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 # Sourcing framework hooks
 source $ZSH/oh-my-zsh.sh
 
-# --- 4. Plugin Ecosystem Theme Variables ---
+# --- 5. Plugin Ecosystem Optimizations ---
+# Async autosuggestions for 0-latency typing
+ZSH_AUTOSUGGEST_USE_ASYNC=1
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8a8a,bold"
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
 
-# --- 5. Powerlevel10k Theme File Sync ---
+# --- 6. Powerlevel10k Theme File Sync ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

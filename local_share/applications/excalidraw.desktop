@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Excalidraw
+Exec=chromium --app=https://excalidraw.com
+Icon=/home/aztrek/.local/share/icons/excalidraw.png
+Type=Application
+Categories=Network;
+StartupWMClass=chrome-excalidraw.com__-Default

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=YouTube Music
+Exec=chromium --app=https://music.youtube.com
+Icon=/home/aztrek/.local/share/icons/ytmusic.png
+Type=Application
+Categories=Network;
+StartupWMClass=chrome-music.youtube.com__-Default

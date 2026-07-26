@@ -113,6 +113,28 @@ done
 
 log_success "Linked ${BOLD}$HOME_COUNT${RESET} home configs."
 
+# ── 2c. Local share files: local_share/* → ~/.local/share/* ───────────────────
+log_section "Symlinking local_share/ → ~/.local/share/"
+
+LOCAL_SHARE_COUNT=0
+if [ -d "$CONFIGS_DIR/local_share" ]; then
+    while IFS= read -r file; do
+        rel_path="${file#$CONFIGS_DIR/local_share/}"
+        target_path="$HOME/.local/share/$rel_path"
+
+        create_symlink "$file" "$target_path"
+        ((++LOCAL_SHARE_COUNT))
+    done < <(find "$CONFIGS_DIR/local_share" -type f)
+fi
+
+log_success "Linked ${BOLD}$LOCAL_SHARE_COUNT${RESET} local share files."
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PHASE 3: Desktop Database & Integration Updates
+# ══════════════════════════════════════════════════════════════════════════════
+
+bash "$CONFIGS_DIR/scripts/webapps.sh"
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  Done!
 # ══════════════════════════════════════════════════════════════════════════════
@@ -124,7 +146,7 @@ echo "  │          Setup Complete! ✓            │"
 echo "  └──────────────────────────────────────┘"
 echo -e "${RESET}"
 
-log_info "Total symlinks: ${BOLD}$((CONFIG_COUNT + HOME_COUNT))${RESET} ($CONFIG_COUNT config + $HOME_COUNT home)"
+log_info "Total symlinks: ${BOLD}$((CONFIG_COUNT + HOME_COUNT + LOCAL_SHARE_COUNT))${RESET} ($CONFIG_COUNT config + $HOME_COUNT home + $LOCAL_SHARE_COUNT local share)"
 
 if [ -d "${BACKUP_DIR:-}" ] && [ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]; then
     log_warn "Backed-up files are in: ${BOLD}$BACKUP_DIR${RESET}"

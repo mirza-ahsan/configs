@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=WhatsApp
+Exec=zen-browser --new-window "https://web.whatsapp.com"
+Icon=/home/aztrek/.local/share/icons/hicolor/256x256/apps/chrome-web.whatsapp.com__-Default.png
+Type=Application
+Categories=Network;
+StartupWMClass=chrome-web.whatsapp.com__-Default

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Claude
+Exec=chromium --app=https://claude.ai
+Icon=/home/aztrek/.local/share/icons/claude.png
+Type=Application
+Categories=Network;
+StartupWMClass=chrome-claude.ai__-Default

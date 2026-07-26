@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Gemini
+Exec=chromium --app=https://gemini.google.com
+Icon=/home/aztrek/.local/share/icons/gemini.svg
+Type=Application
+Categories=Network;AI;
+StartupWMClass=chrome-gemini.google.com__-Default
