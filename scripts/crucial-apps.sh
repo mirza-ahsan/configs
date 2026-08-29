@@ -46,6 +46,7 @@ PACKAGES=(
     btop
     fastfetch
     duf
+    ttf-jetbrains-mono-nerd
     ripgrep
     fd
     tree-sitter-cli

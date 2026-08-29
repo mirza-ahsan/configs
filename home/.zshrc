@@ -47,6 +47,12 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 
 # Sourcing framework hooks
+# Skip oh-my-zsh's compaudit() fpath permission scan on every startup.
+# It stat()s every completion directory each time a shell opens (~4-7ms) to
+# re-check ownership that has not changed since install. compinit still runs and
+# the cached .zcompdump is still used, so completions are unaffected.
+ZSH_DISABLE_COMPFIX="true"
+
 source $ZSH/oh-my-zsh.sh
 
 # --- 5. Plugin Ecosystem Optimizations ---
@@ -60,3 +66,14 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
 
 # --- 6. Powerlevel10k Theme File Sync ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# --- 7. Cursor Shape & Blink Enforcement ---
+# Enforce steady (non-blinking) block cursor
+echo -ne '\e[2 q'
+_set_block_cursor() { echo -ne '\e[2 q' }
+precmd_functions+=(_set_block_cursor)
+zle-keymap-select() { echo -ne '\e[2 q' }
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/aztrek/.local/bin:$PATH"

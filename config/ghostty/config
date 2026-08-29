@@ -1,6 +1,22 @@
-font-family = "Fira Code"
-font-size = 14
+# Font configuration
+font-family = "JetBrainsMono Nerd Font"
+font-size = 20
+
+# Colors & Theme
 theme = dankcolors
+background-opacity = 1
+
+# Cursor styling (Steady non-blinking block)
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
+# Window styling & Padding
 window-padding-x = 10
 window-padding-y = 10
+window-padding-balance = true
+window-decoration = false
+
+# Behavior
 confirm-close-surface = false
+mouse-hide-while-typing = true
