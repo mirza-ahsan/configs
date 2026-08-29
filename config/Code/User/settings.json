@@ -1,0 +1,50 @@
+{
+    "workbench.startupEditor": "none",
+    "window.commandCenter": false,
+    "workbench.layoutControl.enabled": false,
+    // --- AI & Copilot Lockdown ---
+    "chat.disableAIFeatures": true,
+    "git.addAICoAuthor": "off",
+    "editor.inlineSuggest.enabled": false,
+    "github.copilot.editor.enableAutoCompletions": false,
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    // --- GitLens AI Purge ---
+    "gitlens.ai.enabled": false,
+    "gitlens.ai.experimental.codelens": false,
+    "gitlens.plusFeatures.enabled": false,
+    // --- UI & Editor Customization ---
+    "workbench.colorTheme": "Ayu Dark Bordered",
+    "window.titleBarStyle": "native",
+    "window.customTitleBarVisibility": "never",
+    "editor.fontSize": 18,
+    "editor.formatOnSave": true,
+    "editor.fontWeight": "bold",
+    "editor.mouseWheelZoom": true,
+    "notebook.output.scrolling": true,
+    "jupyter.askForKernelRestart": false,
+    "workbench.statusBar.visible": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
+    "git.openRepositoryInParentFolders": "never",
+    "security.workspace.trust.untrustedFiles": "open",
+    "makefile.configureOnOpen": true,
+    "jupyter.kernels.excludePythonEnvironments": [
+        "/home/aztrek/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/bin/python",
+        "/usr/bin/python3"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "code-runner.runInTerminal": true,
+    "code-runner.preserveFocus": false,
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "window.menuBarVisibility": "hidden",
+    "window.dialogStyle": "custom",
+    "window.controlsStyle": "custom",
+    "window.menuStyle": "custom"
+}

@@ -1,0 +1,6 @@
+font-family = "Fira Code"
+font-size = 14
+theme = dankcolors
+window-padding-x = 10
+window-padding-y = 10
+confirm-close-surface = false

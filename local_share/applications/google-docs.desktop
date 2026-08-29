@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Google Docs
+Exec=chromium --app=https://docs.google.com
+Icon=/home/aztrek/.local/share/icons/google-docs.svg
+Type=Application
+Categories=Network;Office;
+StartupWMClass=chrome-docs.google.com__-Default

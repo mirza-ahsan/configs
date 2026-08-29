@@ -5,44 +5,43 @@ set -e
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPTS_DIR/lib.sh"
 
-log_section "GitHub SSH Key Setup"
+log_section "GitHub & Git User Credentials Setup"
 
+USERNAME="mirza-ahsan"
+EMAIL="ahsan.17april@gmail.com"
 KEY_PATH="$HOME/.ssh/id_ed25519"
 
-# Skip if key already exists
+# 1. Configure Global Git Identity
+log_info "Setting global Git user identity..."
+git config --global user.name "$USERNAME"
+git config --global user.email "$EMAIL"
+log_success "Git user identity set to ${BOLD}$USERNAME <$EMAIL>${RESET}."
+
+# 2. Setup SSH Key for GitHub
+log_info "Checking SSH key for GitHub..."
+
 if [ -f "$KEY_PATH" ]; then
-    log_success "SSH key already exists at ${BOLD}$KEY_PATH${RESET}. Skipping generation."
-    echo ""
-    log_info "Your existing public key:"
-    echo "───────────────────────────────────────────────────────"
-    cat "${KEY_PATH}.pub"
-    echo "───────────────────────────────────────────────────────"
-    exit 0
+    log_success "SSH key already exists at ${BOLD}$KEY_PATH${RESET}."
+else
+    log_info "Generating ED25519 SSH key for ${BOLD}$EMAIL${RESET}..."
+    mkdir -p "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh"
+    ssh-keygen -t ed25519 -C "$EMAIL" -f "$KEY_PATH" -N ""
+    log_success "SSH key generated."
 fi
 
-# Prompt for email
+# 3. Start SSH Agent and Add Key
+log_info "Starting SSH agent and adding key..."
+eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
+ssh-add "$KEY_PATH" 2>/dev/null || true
+log_success "SSH key registered with ssh-agent."
+
+# 4. Display Public Key for GitHub
 echo ""
-read -rp "$(echo -e "${BLUE}[INPUT]${RESET}   Enter your GitHub email: ")" EMAIL
-
-if [ -z "$EMAIL" ]; then
-    log_error "Email cannot be empty. Aborting SSH key setup."
-    exit 1
-fi
-
-# Generate key
-log_info "Generating SSH key for ${BOLD}$EMAIL${RESET}..."
-mkdir -p "$HOME/.ssh"
-ssh-keygen -t ed25519 -C "$EMAIL" -f "$KEY_PATH" -N ""
-
-# Start SSH agent and add key
-log_info "Starting SSH agent..."
-eval "$(ssh-agent -s)" >/dev/null 2>&1
-ssh-add "$KEY_PATH"
-
-# Show the public key
-echo ""
-log_success "SSH key generated! Copy the public key below and add it to GitHub:"
+log_success "GitHub SSH & Git identity setup complete!"
 echo "───────────────────────────────────────────────────────"
 cat "${KEY_PATH}.pub"
 echo "───────────────────────────────────────────────────────"
-log_info "Add it at: ${BOLD}https://github.com/settings/ssh/new${RESET}"
+log_info "Add this SSH public key to your GitHub account:"
+log_info "${BOLD}https://github.com/settings/ssh/new${RESET}"
+echo ""

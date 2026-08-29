@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Google Sheets
+Exec=chromium --app=https://sheets.google.com
+Icon=/home/aztrek/.local/share/icons/google-sheets.svg
+Type=Application
+Categories=Network;Office;
+StartupWMClass=chrome-sheets.google.com__-Default

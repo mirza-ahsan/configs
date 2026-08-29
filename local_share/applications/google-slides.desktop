@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Google Slides
+Exec=chromium --app=https://slides.google.com
+Icon=/home/aztrek/.local/share/icons/google-slides.svg
+Type=Application
+Categories=Network;Office;
+StartupWMClass=chrome-slides.google.com__-Default

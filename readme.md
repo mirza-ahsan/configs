@@ -1,88 +1,82 @@
-# Configs & System Setup
+# System Configs & Dotfiles
 
-This repository contains my personal configurations (Hyprland, Neovim, Tmux, Zsh, etc.) and automation scripts to set up a fresh Arch Linux environment from scratch.
+Personal Arch Linux workstation configuration repository featuring **Niri Wayland Compositor**, **Dank Material Shell**, **Zed**, **VS Code**, **Ghostty**, **Neovim**, **Tmux**, **Zsh**, **Clang-format**, and custom web applications.
+
+---
 
 ## Quick Start
 
-To get everything installed—including AUR helpers, essential apps, SSH keys, and all configurations—run the following commands:
+To install all system dependencies, packages, toolchains, SSH keys, web application launchers, and deploy configuration symlinks:
 
 ```bash
-# 1. Clone the repository to your home folder
-git clone https://github.com/mirza-ahsan/configs.git
+# 1. Clone the repository
+git clone https://github.com/mirza-ahsan/configs.git ~/configs
 
-# 2. Enter the directory
+# 2. Navigate into directory
 cd ~/configs
 
-# 3. Make the master script executable
-chmod +x master-installation.sh
+# 3. Make scripts executable
+chmod +x master-installation.sh scripts/*.sh
 
-# 4. Run the installation
+# 4. Run master installation
 ./master-installation.sh
 ```
 
-### Symlink-Only Mode
+### Symlink-Only Deployment Mode
 
-Already have everything installed and just want to deploy the configs?
+If software packages are already installed and you only wish to deploy or re-link configuration files:
 
 ```bash
 ./master-installation.sh --link-only
 ```
 
-This skips all package installations and only creates symlinks from the repo to the correct locations.
+### Standalone GitHub & SSH Setup
 
----
+To configure Git global identity (`mirza-ahsan <ahsan.17april@gmail.com>`) and SSH keys independently:
 
-## What the Master Script Does
-
-The `master-installation.sh` handles the heavy lifting in two phases:
-
-### Phase 1: Package Installation *(skipped with `--link-only`)*
-
-1.  **AUR Helpers:** Installs `yay` and `paru` with proper temp-directory builds.
-2.  **Apps:** Installs core software (Zen Browser, Ghostty, VS Code, Yazi, cmake).
-3.  **Neovim:** Installs Neovim 0.12+, tree-sitter-cli, ripgrep, fd, clang, and all required system deps.
-4.  **Shell & Tools:** Sets up Zsh, Oh My Zsh, Powerlevel10k, plugins, and changes the default shell.
-5.  **Tmux:** Installs tmux and the Tmux Plugin Manager (TPM).
-6.  **Security:** Interactively generates a new SSH key for GitHub (skipped if one already exists).
-
-### Phase 2: Symlink Deployment
-
-6.  **Config:** Everything in `config/` is mirrored file-by-file into `~/.config/` via symlinks.
-7.  **Home:** Everything in `home/` is symlinked directly into `~/` (e.g., `.zshrc`, `.tmux.conf`).
-
-> **Backups:** If any existing real files are found at the target locations, they are automatically backed up to `~/.configs-backup/<timestamp>/` before being replaced with symlinks.
-
----
-
-## Repository Structure
-
-```
-configs/
-├── config/             # → symlinked to ~/.config/
-│   └── nvim/           #   Full Neovim config (init.lua, plugins, keymaps)
-├── home/               # → symlinked to ~/
-│   ├── .clang-format   #   C++ formatting rules
-│   ├── .tmux.conf      #   Tmux configuration
-│   └── .zshrc          #   Zsh configuration (P10k, plugins, keybinds)
-├── scripts/            # Modular installation scripts
-│   ├── lib.sh          #   Shared utilities (logging, symlinks, backups)
-│   ├── aur.sh          #   AUR helper installation (yay, paru)
-│   ├── crucial-apps.sh #   Core application installation
-│   ├── nvim.sh         #   Neovim + system dependencies
-│   ├── zsh.sh          #   Zsh + Oh My Zsh + plugins setup
-│   ├── tmux.sh         #   Tmux + TPM setup
-│   └── github.sh       #   GitHub SSH key generation
-├── master-installation.sh
-└── readme.md
+```bash
+./scripts/github.sh
 ```
 
----
-
-## Adding New Configs
-
-- **~/.config/ files:** Place them under `config/` mirroring the path (e.g., `config/hypr/hyprland.conf` → `~/.config/hypr/hyprland.conf`).
-- **Home configs:** Place them under `home/` (e.g., `home/.gitconfig` → `~/.gitconfig`).
-
-Run the master script again (or with `--link-only`) to deploy.
+> **Automatic Backups:** Existing non-symlinked files at target locations are safely moved to `~/.configs-backup/<timestamp>/` prior to creating new symlinks.
 
 ---
+
+## Managed Configurations
+
+| Module | Location in Repo | Deployment Target | Key Features & Optimizations |
+| :--- | :--- | :--- | :--- |
+| **Niri Compositor** | `config/niri/` | `~/.config/niri/` | `config.kdl` + full `dms/` modular suite (`binds.kdl`, `layout.kdl`, `colors.kdl`, `alttab.kdl`, `outputs.kdl`, `cursor.kdl`, `windowrules.kdl`, `wpblur.kdl`). |
+| **Zed Editor** | `config/zed/` | `~/.config/zed/` | `settings.json` (Vim mode, Pyrefly/Ruff/Clangd LSP, custom UI) & `keymap.json` (Vim normal/visual bindings, Leader shortcuts). |
+| **VS Code** | `config/Code/User/` | `~/.config/Code/User/` | `settings.json` (AI/Copilot purge, Ayu Dark Bordered theme, clean titlebar, Python black formatter). |
+| **Ghostty Terminal** | `config/ghostty/` | `~/.config/ghostty/` | `config` file & `themes/dankcolors` custom palette. |
+| **Neovim** | `config/nvim/` | `~/.config/nvim/` | Lua init, Lazy.nvim plugin ecosystem (Treesitter, Blink, LSP, Conform, Telescope, Lualine, Noice). |
+| **Tmux** | `home/.tmux.conf` | `~/.tmux.conf` | ESC delay set to 0ms, non-login interactive shell spawning (`default-command`), TPM resurrect, Spider-Man theme statusbar. |
+| **Zsh & Shell** | `home/.zshrc`, `home/.p10k.zsh` | `~/.zshrc`, `~/.p10k.zsh` | Powerlevel10k theme, 0-latency completion caching, async autosuggestions, fastfetch integration. |
+| **C++ Clang-Format** | `home/.clang-format` | `~/.clang-format` | Google-based C++17 formatting rules, 4-space indent, Allman braces, 130 column limit. |
+| **Web Applications** | `local_share/applications/`, `local_share/icons/` | `~/.local/share/applications/`, `~/.local/share/icons/` | Chromium/Browser standalone launchers & custom icons for Gemini, WhatsApp, YouTube, YT Music, GitHub, Excalidraw, Google Docs/Sheets/Slides, Classroom. |
+| **Dank Material Shell**| `config/DankMaterialShell/` | `~/.config/DankMaterialShell/` | UI settings & custom `zen.css` theme overrides. |
+| **Ruff & Portal** | `config/ruff/`, `config/xdg-desktop-portal/` | `~/.config/ruff/`, `~/.config/xdg-desktop-portal/` | Linter rules and Wayland XDG desktop portal configurations. |
+| **Git Global** | `home/.gitconfig` | `~/.gitconfig` | User identity (`mirza-ahsan`) & LFS filters. |
+
+---
+
+## System Dependencies & Installation Pipeline
+
+All system dependencies required to run these configurations are included in the setup scripts:
+
+- **Wayland / UI Desktop:** `niri`, `dms-shell`, `quickshell`, `matugen`, `xwayland-satellite`, `xdg-desktop-portal-gnome`, `xdg-desktop-portal-wlr`, `wl-clipboard`, `grim`, `slurp`, `brightnessctl`, `playerctl`.
+- **Audio Stack:** `pipewire-pulse`, `pipewire-alsa`, `wireplumber`, `pavucontrol`.
+- **Terminals & Shell:** `ghostty`, `zsh`, `oh-my-zsh`, `powerlevel10k`, `zsh-autosuggestions`, `zsh-syntax-highlighting`, `fastfetch`, `tmux`.
+- **Editors & Tools:** `neovim`, `visual-studio-code-bin`, `zed`, `micro`, `yazi`, `cava`, `btop`, `duf`, `vesktop`, `zen-browser-bin`, `chromium`.
+- **Formatters & LSP Toolchains:** `clang` (`clangd` + `clang-format`), `gcc`, `make`, `cmake`, `tree-sitter-cli`, `ripgrep`, `fd`, `uv`, `ruff`, `go`, `rust`, `npm`.
+
+### Script Architecture
+
+1. **`scripts/aur.sh`**: Installs base-devel, git, `yay`, and `paru`.
+2. **`scripts/crucial-apps.sh`**: Automated installation of all 42 system packages and config dependencies.
+3. **`scripts/nvim.sh`**: Neovim 0.12+ and language parser toolchain.
+4. **`scripts/zsh.sh`**: Zsh shell framework, P10k prompt, and plugins.
+5. **`scripts/tmux.sh`**: Tmux multiplexer and Plugin Manager (TPM).
+6. **`scripts/github.sh`** *(Independent)*: Non-interactive Git credentials & ED25519 SSH key setup (`mirza-ahsan <ahsan.17april@gmail.com>`).
+7. **`scripts/webapps.sh`**: Refreshes GTK icon cache and desktop launcher database.
