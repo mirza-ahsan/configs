@@ -12,7 +12,7 @@ PluginComponent {
 
     readonly property string helperScript: Paths.strip(Paths.config) + "/plugins/hotspotControl/scripts/hotspot-ctl.sh"
     // nmcli connection up/down can take well over Proc's 10s default
-    readonly property int actionTimeoutMs: 60000
+    readonly property int actionTimeoutMs: 120000
 
     // State properties
     property bool isActive: false

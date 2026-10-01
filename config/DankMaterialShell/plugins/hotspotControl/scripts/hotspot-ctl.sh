@@ -158,10 +158,67 @@ prepare_concurrent() {
         802-11-wireless.band "$band" 802-11-wireless.channel "$channel"
 }
 
+device_state() {
+    nmcli -g GENERAL.STATE device show "$DEVICE" 2>/dev/null | head -n1
+}
+
+# Make sure the card is present, unblocked and ready. Catches the usual post-boot problems,
+# e.g. coming back from Windows with Fast Startup leaving the card uninitialised.
+preflight() {
+    local state i
+    if [ ! -e "/sys/class/net/${DEVICE}" ]; then
+        die "Wi-Fi interface ${DEVICE} not found. If you just came from Windows, Fast Startup can leave the card uninitialised: shut down Windows fully (or disable Fast Startup there), or reboot Linux."
+    fi
+    # Unblock first: on some laptops (e.g. Dell) a soft block on the platform switch
+    # shows up as a hard block on the phy until it is cleared
+    if [ "$AUTO_UNBLOCK" = "true" ] && rfkill list wifi 2>/dev/null | grep -q "blocked: yes"; then
+        rfkill unblock wifi 2>/dev/null || true
+        for i in $(seq 1 10); do
+            rfkill list wifi 2>/dev/null | grep -q "blocked: yes" || break
+            sleep 0.3
+        done
+    fi
+    if rfkill list wifi 2>/dev/null | grep -q "Hard blocked: yes"; then
+        die "Wi-Fi is hard-blocked (airplane-mode key or BIOS switch). Turn the radio on and try again."
+    fi
+    if [ "$(is_wifi_blocked)" = "true" ]; then
+        die "Wi-Fi is turned off (rfkill soft block). Turn it on or enable Auto-Unblock in the plugin settings."
+    fi
+    nmcli radio wifi on >/dev/null 2>&1 || true
+
+    # Right after boot or unblocking, the device sits in "unavailable" for a few seconds
+    for i in $(seq 1 30); do
+        state=$(device_state)
+        case "$state" in
+            10*) die "NetworkManager is not managing ${DEVICE}." ;;
+            20*|"") sleep 0.5 ;;
+            *) return 0 ;;
+        esac
+    done
+    die "${DEVICE} is still unavailable (${state:-unknown state}). Wait a moment after boot, or reboot if it persists."
+}
+
+# Bring the profile up, retrying once (firmware/regulatory can lag right after boot)
+activate() {
+    local apdev="$1" band out
+    if out=$(nmcli --wait 45 connection up "${CON_NAME}" ifname "$apdev" 2>&1); then
+        return 0
+    fi
+    band=$(get_field 802-11-wireless.band)
+    # Intel cards refuse 5 GHz AP until they have scanned and learned the regulatory region
+    nmcli device wifi rescan ifname "$DEVICE" >/dev/null 2>&1 || true
+    sleep 3
+    if out=$(nmcli --wait 45 connection up "${CON_NAME}" ifname "$apdev" 2>&1); then
+        return 0
+    fi
+    echo "$out"
+    [ "$band" = "a" ] && echo "Hint: this card may not allow a 5 GHz hotspot here; switch to 2.4 GHz."
+    return 1
+}
+
 cmd_start() {
     local freq apdev="$DEVICE"
-    [ "$AUTO_UNBLOCK" = "true" ] && { rfkill unblock wifi 2>/dev/null || true; }
-    nmcli radio wifi on >/dev/null 2>&1 || true
+    preflight
 
     freq=$(upstream_freq)
     if [ "$CONCURRENT" = "true" ] && [ -n "$freq" ]; then
@@ -172,7 +229,7 @@ cmd_start() {
         run nmcli connection modify "${CON_NAME}" connection.interface-name "$DEVICE"
     fi
 
-    if ! run nmcli --wait 45 connection up "${CON_NAME}" ifname "$apdev"; then
+    if ! activate "$apdev"; then
         [ "$apdev" = "$AP_IFACE" ] && remove_ap_iface
         exit 1
     fi
