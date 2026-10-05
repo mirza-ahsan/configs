@@ -7,11 +7,12 @@ Built on the NetworkManager connection profile named `Hotspot` (AP mode, `ipv4.m
 
 ## Features
 
-1. **DankBar Widget (Pill)**: hotspot icon, SSID when active, and a badge with the number of connected clients. Click to open the popout.
+1. **DankBar Widget (Pill)**: hotspot icon, SSID when active, and the number of connected clients (e.g. `aztrek · 3`). Click to open the popout.
 
 2. **Popout**:
    - Start / Stop button.
    - Edit SSID, WPA2 password (with show/hide), and band (2.4 / 5 GHz). Saving restarts the hotspot if it is running.
+     5 GHz uses 80 MHz width on the first channel the card may transmit on (e.g. 149 in PK); 2.4 GHz uses 20 MHz on channel 6.
    - Gateway IP, upstream interface, and Copy Password button.
 
 3. **Control Center tile** (`plugin_hotspotControl`): toggle plus a detail view. Add or remove it in Control Center edit mode.

@@ -13,6 +13,8 @@ PluginComponent {
     readonly property string helperScript: Paths.strip(Paths.config) + "/plugins/hotspotControl/scripts/hotspot-ctl.sh"
     // nmcli connection up/down can take well over Proc's 10s default
     readonly property int actionTimeoutMs: 120000
+    // Proc merges calls that share an id, so each instance (bar pill, CC tile) needs its own
+    readonly property string procKey: Math.random().toString(36).slice(2)
 
     // State properties
     property bool isActive: false
@@ -78,7 +80,7 @@ PluginComponent {
 
     function refreshStatus() {
         Proc.runCommand(
-            "hotspot.status",
+            `hotspot.status.${procKey}`,
             [helperScript, "status"],
             (output, exitCode) => {
                 if (exitCode === 0 && output && output.trim()) {
@@ -98,7 +100,10 @@ PluginComponent {
                         console.log("hotspotControl: failed to parse status", e);
                     }
                 }
-            }
+            },
+            undefined,
+            undefined,
+            root
         );
     }
 
@@ -194,22 +199,13 @@ PluginComponent {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            Rectangle {
+            // Connected-client count as plain text, no badge background
+            StyledText {
                 visible: root.isActive && root.statusClients > 0
-                width: clientBadgeText.implicitWidth + 8
-                height: 18
-                radius: 9
-                color: Theme.primaryContainer
+                text: `· ${root.statusClients}`
+                color: Theme.surfaceVariantText
+                font.pixelSize: Theme.fontSizeMedium
                 anchors.verticalCenter: parent.verticalCenter
-
-                StyledText {
-                    id: clientBadgeText
-                    anchors.centerIn: parent
-                    text: `${root.statusClients}`
-                    color: Theme.surfaceText
-                    font.pixelSize: Theme.fontSizeSmall - 2
-                    font.weight: Font.Bold
-                }
             }
         }
     }
