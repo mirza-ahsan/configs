@@ -92,6 +92,31 @@ upstream_freq() {
     iw dev "$DEVICE" link 2>/dev/null | awk '/freq:/ {print int($2)}'
 }
 
+# First 5 GHz channel the card may start an AP on: not "no IR" (passive-only, e.g. 36-48
+# under some regions), not radar/DFS, not disabled
+pick_5ghz_channel() {
+    local phy
+    phy=$(basename "$(readlink -f "/sys/class/net/${DEVICE}/phy80211")" 2>/dev/null)
+    iw phy "$phy" info 2>/dev/null |
+        awk '/\* 5[0-9]+(\.[0-9])? MHz \[/ && !/no IR|radar|disabled/ { gsub(/[][]/, "", $4); print $4; exit }'
+}
+
+# Point the profile at a usable 5 GHz channel before activation
+select_5ghz_channel() {
+    local ch
+    ch=$(pick_5ghz_channel)
+    if [ -z "$ch" ]; then
+        # Region not learned yet (e.g. right after boot, region "00"): scan so the card picks it up
+        nmcli device wifi rescan ifname "$DEVICE" >/dev/null 2>&1 || true
+        sleep 4
+        ch=$(pick_5ghz_channel)
+    fi
+    [ -n "$ch" ] || die "No 5 GHz channel on ${DEVICE} allows starting a hotspot in this region. Use 2.4 GHz."
+    if [ "$(get_field 802-11-wireless.channel)" != "$ch" ]; then
+        run nmcli connection modify "${CON_NAME}" 802-11-wireless.channel "$ch"
+    fi
+}
+
 json_esc() {
     printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
@@ -189,9 +214,10 @@ preflight() {
     # Right after boot or unblocking, the device sits in "unavailable" for a few seconds
     for i in $(seq 1 30); do
         state=$(device_state)
-        case "$state" in
-            10*) die "NetworkManager is not managing ${DEVICE}." ;;
-            20*|"") sleep 0.5 ;;
+        # nmcli prints e.g. "20 (unavailable)"; compare the numeric code exactly ("100" is connected)
+        case "${state%% *}" in
+            10) die "NetworkManager is not managing ${DEVICE}." ;;
+            20|"") sleep 0.5 ;;
             *) return 0 ;;
         esac
     done
@@ -218,6 +244,10 @@ activate() {
 
 cmd_start() {
     local freq apdev="$DEVICE"
+    if [ "$(get_active)" = "true" ]; then
+        cmd_status
+        return 0
+    fi
     preflight
 
     freq=$(upstream_freq)
@@ -227,6 +257,9 @@ cmd_start() {
     else
         remove_ap_iface
         run nmcli connection modify "${CON_NAME}" connection.interface-name "$DEVICE"
+        if [ "$(get_field 802-11-wireless.band)" = "a" ]; then
+            select_5ghz_channel
+        fi
     fi
 
     if ! activate "$apdev"; then
@@ -251,7 +284,7 @@ cmd_toggle() {
 }
 
 cmd_configure() {
-    local new_ssid="$1" new_pass="$2" new_band="$3" was_active
+    local new_ssid="$1" new_pass="$2" new_band="$3" was_active ch
 
     [ -n "$new_ssid" ] || die "SSID cannot be empty"
     if [ -n "$new_pass" ] && { [ "${#new_pass}" -lt 8 ] || [ "${#new_pass}" -gt 63 ]; }; then
@@ -278,7 +311,11 @@ cmd_configure() {
     # In concurrent mode the band/channel is dictated by the upstream connection on start
     case "$new_band" in
         "") ;;
-        5|5g|5GHz|a) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band a 802-11-wireless.channel 36 ;;
+        # Final channel is re-checked on start (select_5ghz_channel); 149 is a fallback valid for band a
+        5|5g|5GHz|a)
+            ch=$(pick_5ghz_channel)
+            run nmcli connection modify "${CON_NAME}" 802-11-wireless.band a 802-11-wireless.channel "${ch:-149}"
+            ;;
         2.4|2.4g|2.4GHz|bg) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band bg 802-11-wireless.channel 6 ;;
     esac
 
