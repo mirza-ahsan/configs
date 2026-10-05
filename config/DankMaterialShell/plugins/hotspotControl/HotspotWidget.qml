@@ -141,8 +141,23 @@ PluginComponent {
             ToastService.showError("Validation Error", "SSID cannot be empty");
             return;
         }
+        // SSIDs are limited to 32 bytes (UTF-8), not characters
+        const ssidBytes = encodeURIComponent(newSsid.trim()).replace(/%[0-9A-F]{2}/g, "x").length;
+        if (ssidBytes > 32) {
+            ToastService.showError("Validation Error", `SSID is too long (${ssidBytes} bytes, max 32; accented letters and emoji take 2-4 bytes each)`);
+            return;
+        }
         if (newPass && (newPass.length < 8 || newPass.length > 63)) {
             ToastService.showError("Validation Error", "Password must be 8-63 characters");
+            return;
+        }
+        if (newPass && !/^[\x20-\x7E]*$/.test(newPass)) {
+            ToastService.showError("Validation Error", "Password can only contain standard keyboard characters (no accents or emoji)");
+            return;
+        }
+        const bandChanged = newBand !== "" && newBand !== (statusBand === "a" ? "a" : "bg");
+        if (newSsid.trim() === statusSSID && (!newPass || newPass === statusPassword) && !bandChanged) {
+            ToastService.showInfo("Wi-Fi Hotspot", "No changes to save");
             return;
         }
 

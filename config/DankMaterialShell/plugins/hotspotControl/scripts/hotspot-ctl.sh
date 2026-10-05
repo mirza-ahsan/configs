@@ -46,7 +46,14 @@ get_active() {
 }
 
 get_field() {
-    nmcli -s -g "$1" connection show "${CON_NAME}" 2>/dev/null || true
+    # -e no: plain -g escapes '\' and ':' (would corrupt passwords/SSIDs containing them)
+    nmcli -e no -s -g "$1" connection show "${CON_NAME}" 2>/dev/null || true
+}
+
+# Serialize state-changing commands (bar pill, CC tile, CLI and keybindings can race)
+take_lock() {
+    exec 9>"${XDG_RUNTIME_DIR:-/tmp}/hotspot-ctl.lock"
+    flock -w 150 9 || die "Another hotspot operation is still running"
 }
 
 get_active_device() {
@@ -140,10 +147,18 @@ cmd_status() {
     fi
     clients=$(printf '%s' "$clients" | tr -cd '0-9')
 
+    local concurrent
+    concurrent=$([ "$CONCURRENT" = "true" ] && echo true || echo false)
+    if command -v jq >/dev/null 2>&1; then
+        jq -cn --argjson active "$active" --arg ssid "$ssid" --arg password "$pass" --arg band "${band:-bg}" \
+            --arg device "$dev" --arg ip "$ip" --argjson clients "${clients:-0}" --arg upstream "$upstream" \
+            --argjson wifiBlocked "$blocked" --arg mode "$mode" --argjson concurrentEnabled "$concurrent" \
+            '{$active, $ssid, $password, $band, $device, $ip, $clients, $upstream, $wifiBlocked, $mode, $concurrentEnabled}'
+        return
+    fi
     printf '{"active":%s,"ssid":"%s","password":"%s","band":"%s","device":"%s","ip":"%s","clients":%d,"upstream":"%s","wifiBlocked":%s,"mode":"%s","concurrentEnabled":%s}\n' \
         "$active" "$(json_esc "$ssid")" "$(json_esc "$pass")" "$(json_esc "${band:-bg}")" "$(json_esc "$dev")" \
-        "$(json_esc "$ip")" "${clients:-0}" "$(json_esc "$upstream")" "$blocked" "$mode" \
-        "$([ "$CONCURRENT" = "true" ] && echo true || echo false)"
+        "$(json_esc "$ip")" "${clients:-0}" "$(json_esc "$upstream")" "$blocked" "$mode" "$concurrent"
 }
 
 remove_ap_iface() {
@@ -291,16 +306,35 @@ cmd_toggle() {
 }
 
 cmd_configure() {
-    local new_ssid="$1" new_pass="$2" new_band="$3" was_active ch
+    local new_ssid="$1" new_pass="$2" new_band="$3" want_band="" was_active ch bytes changed=false
 
-    [ -n "$new_ssid" ] || die "SSID cannot be empty"
-    if [ -n "$new_pass" ] && { [ "${#new_pass}" -lt 8 ] || [ "${#new_pass}" -gt 63 ]; }; then
-        die "Password must be 8-63 characters"
+    [ -n "${new_ssid//[[:space:]]/}" ] || die "SSID cannot be empty"
+    bytes=$(printf '%s' "$new_ssid" | LC_ALL=C wc -c)
+    [ "$bytes" -le 32 ] || die "SSID is too long (${bytes} bytes, max 32; accented letters and emoji take 2-4 bytes each)"
+    if [ -n "$new_pass" ]; then
+        if [ "${#new_pass}" -lt 8 ] || [ "${#new_pass}" -gt 63 ]; then
+            die "Password must be 8-63 characters"
+        fi
+        # WPA2 passphrases are printable ASCII only
+        if printf '%s' "$new_pass" | LC_ALL=C grep -q '[^ -~]'; then
+            die "Password can only contain standard keyboard characters (no accents or emoji)"
+        fi
     fi
     case "$new_band" in
-        ""|5|5g|5GHz|a|2.4|2.4g|2.4GHz|bg) ;;
+        "") ;;
+        5|5g|5GHz|a) want_band="a" ;;
+        2.4|2.4g|2.4GHz|bg) want_band="bg" ;;
         *) die "Unknown band '$new_band' (use bg or a)" ;;
     esac
+
+    [ "$new_ssid" != "$(get_field 802-11-wireless.ssid)" ] && changed=true
+    [ -n "$new_pass" ] && [ "$new_pass" != "$(get_field 802-11-wireless-security.psk)" ] && changed=true
+    [ -n "$want_band" ] && [ "$want_band" != "$(get_field 802-11-wireless.band)" ] && changed=true
+    if [ "$changed" = "false" ]; then
+        # Nothing to apply; don't restart and drop connected devices
+        cmd_status
+        return 0
+    fi
 
     was_active=$(get_active)
 
@@ -316,16 +350,16 @@ cmd_configure() {
     fi
 
     # In concurrent mode the band/channel is dictated by the upstream connection on start
-    case "$new_band" in
+    case "$want_band" in
         "") ;;
         # Final channel is re-checked on start (select_5ghz_channel); 149 is a fallback valid for band a
-        5|5g|5GHz|a)
+        a)
             ch=$(pick_5ghz_channel)
             run nmcli connection modify "${CON_NAME}" 802-11-wireless.band a 802-11-wireless.channel "${ch:-149}" \
                 802-11-wireless.channel-width 80mhz
             ;;
-        2.4|2.4g|2.4GHz|bg) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band bg 802-11-wireless.channel 6 \
-                                802-11-wireless.channel-width auto ;;
+        bg) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band bg 802-11-wireless.channel 6 \
+                802-11-wireless.channel-width auto ;;
     esac
 
     # Restart to apply new credentials
@@ -341,11 +375,12 @@ load_settings
 
 case "$1" in
     status) cmd_status ;;
-    start) cmd_start ;;
-    stop) cmd_stop ;;
-    toggle) cmd_toggle ;;
+    start) take_lock; cmd_start ;;
+    stop) take_lock; cmd_stop ;;
+    toggle) take_lock; cmd_toggle ;;
     configure)
         shift
+        take_lock
         cmd_configure "$@"
         ;;
     *)
