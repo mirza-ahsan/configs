@@ -180,7 +180,7 @@ prepare_concurrent() {
     run nmcli device set "$AP_IFACE" autoconnect no
 
     run nmcli connection modify "${CON_NAME}" connection.interface-name "$AP_IFACE" \
-        802-11-wireless.band "$band" 802-11-wireless.channel "$channel"
+        802-11-wireless.band "$band" 802-11-wireless.channel "$channel" 802-11-wireless.channel-width auto
 }
 
 device_state() {
@@ -236,6 +236,13 @@ activate() {
     sleep 3
     if out=$(nmcli --wait 45 connection up "${CON_NAME}" ifname "$apdev" 2>&1); then
         return 0
+    fi
+    if [ "$band" = "a" ] && [ "$(get_field 802-11-wireless.channel-width)" = "80" ]; then
+        # 80 MHz needs the whole 4-channel block to be usable; fall back to automatic width
+        run nmcli connection modify "${CON_NAME}" 802-11-wireless.channel-width auto
+        if out=$(nmcli --wait 45 connection up "${CON_NAME}" ifname "$apdev" 2>&1); then
+            return 0
+        fi
     fi
     echo "$out"
     [ "$band" = "a" ] && echo "Hint: this card may not allow a 5 GHz hotspot here; switch to 2.4 GHz."
@@ -314,9 +321,11 @@ cmd_configure() {
         # Final channel is re-checked on start (select_5ghz_channel); 149 is a fallback valid for band a
         5|5g|5GHz|a)
             ch=$(pick_5ghz_channel)
-            run nmcli connection modify "${CON_NAME}" 802-11-wireless.band a 802-11-wireless.channel "${ch:-149}"
+            run nmcli connection modify "${CON_NAME}" 802-11-wireless.band a 802-11-wireless.channel "${ch:-149}" \
+                802-11-wireless.channel-width 80mhz
             ;;
-        2.4|2.4g|2.4GHz|bg) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band bg 802-11-wireless.channel 6 ;;
+        2.4|2.4g|2.4GHz|bg) run nmcli connection modify "${CON_NAME}" 802-11-wireless.band bg 802-11-wireless.channel 6 \
+                                802-11-wireless.channel-width auto ;;
     esac
 
     # Restart to apply new credentials
