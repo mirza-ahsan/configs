@@ -7,7 +7,7 @@ Built on the NetworkManager connection profile named `Hotspot` (AP mode, `ipv4.m
 
 ## Features
 
-1. **DankBar Widget (Pill)**: hotspot icon, SSID when active, and the number of connected clients (e.g. `aztrek · 3`). Click to open the popout.
+1. **DankBar Widget (Pill)**: icon only (`wifi_tethering` when on, `wifi_tethering_off` when off). Click to open the popout, which shows the SSID and connected clients.
 
 2. **Popout**:
    - Start / Stop button.
