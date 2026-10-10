@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=NotebookLM
+Exec=chromium --app=https://notebooklm.google.com
+Icon=/home/aztrek/.local/share/icons/notebooklm.png
+Type=Application
+Categories=Network;AI;Office;
+StartupWMClass=chrome-notebooklm.google.com__-Default

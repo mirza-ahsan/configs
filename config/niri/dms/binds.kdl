@@ -230,6 +230,7 @@ binds {
 
     // === Custom Binds ===
     Mod+Return { spawn "ghostty"; }
+    Mod+E { spawn "nautilus"; }
     Mod+B { spawn "brave-origin"; }
     Mod+D { spawn "vesktop"; }
     Mod+Y { spawn "chromium" "--app=https://youtube.com"; }
