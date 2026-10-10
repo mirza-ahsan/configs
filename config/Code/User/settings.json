@@ -26,6 +26,8 @@
     "editor.fontWeight": "bold",
     "editor.mouseWheelZoom": true,
     "notebook.output.scrolling": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
     "jupyter.askForKernelRestart": false,
     "workbench.statusBar.visible": false,
     "explorer.confirmDragAndDrop": false,
@@ -46,5 +48,6 @@
     "window.menuBarVisibility": "hidden",
     "window.dialogStyle": "custom",
     "window.controlsStyle": "custom",
-    "window.menuStyle": "custom"
+    "window.menuStyle": "custom",
+    "update.showReleaseNotes": false
 }

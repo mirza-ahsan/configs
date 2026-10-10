@@ -3,7 +3,7 @@ font-family = "JetBrainsMono Nerd Font"
 font-size = 20
 
 # Colors & Theme
-theme = dankcolors
+theme = spiderman
 background-opacity = 1
 
 # Cursor styling (Steady non-blinking block)

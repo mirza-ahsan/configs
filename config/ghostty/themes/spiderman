@@ -1,0 +1,27 @@
+# Spider-Man Theme (Crimson Red & Electric Blue)
+background = #0c0c0e
+foreground = #e6ecf5
+cursor-color = #ff2a4b
+cursor-text = #ffffff
+selection-background = #162638
+selection-foreground = #ffffff
+
+# Standard Palette
+palette = 0=#131418
+palette = 1=#ff2a4b
+palette = 2=#2ec4b6
+palette = 3=#ffd166
+palette = 4=#0077e6
+palette = 5=#9d4edd
+palette = 6=#00b4d8
+palette = 7=#d9e2ec
+
+# Bright Palette
+palette = 8=#4b5563
+palette = 9=#ff5370
+palette = 10=#4ade80
+palette = 11=#ffe066
+palette = 12=#38bdf8
+palette = 13=#c77dff
+palette = 14=#00f5ff
+palette = 15=#ffffff
