@@ -196,32 +196,12 @@ PluginComponent {
     // -------------------------------------------------------------
     // Horizontal Bar Pill (Top / Bottom DankBar)
     // -------------------------------------------------------------
+    // Icon only; SSID and client count live in the popout and CC tile
     horizontalBarPill: Component {
-        Row {
-            spacing: Theme.spacingXS
-
-            DankIcon {
-                name: root.isActive ? "wifi_tethering" : "wifi_tethering_off"
-                color: root.isActive ? Theme.primary : Theme.surfaceVariantText
-                size: Theme.iconSize - 4
-                anchors.verticalCenter: parent.verticalCenter
-            }
-
-            StyledText {
-                text: root.isActive ? root.statusSSID : "Hotspot"
-                color: root.isActive ? Theme.primary : Theme.surfaceVariantText
-                font.pixelSize: Theme.fontSizeMedium
-                anchors.verticalCenter: parent.verticalCenter
-            }
-
-            // Connected-client count as plain text, no badge background
-            StyledText {
-                visible: root.isActive && root.statusClients > 0
-                text: `· ${root.statusClients}`
-                color: Theme.surfaceVariantText
-                font.pixelSize: Theme.fontSizeMedium
-                anchors.verticalCenter: parent.verticalCenter
-            }
+        DankIcon {
+            name: root.isActive ? "wifi_tethering" : "wifi_tethering_off"
+            color: root.isActive ? Theme.primary : Theme.surfaceVariantText
+            size: Theme.iconSize - 4
         }
     }
 
@@ -229,22 +209,10 @@ PluginComponent {
     // Vertical Bar Pill (Left / Right DankBar)
     // -------------------------------------------------------------
     verticalBarPill: Component {
-        Column {
-            spacing: Theme.spacingXS
-
-            DankIcon {
-                name: root.isActive ? "wifi_tethering" : "wifi_tethering_off"
-                color: root.isActive ? Theme.primary : Theme.surfaceVariantText
-                size: Theme.iconSize - 4
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            StyledText {
-                text: root.isActive ? "ON" : "OFF"
-                color: root.isActive ? Theme.primary : Theme.surfaceVariantText
-                font.pixelSize: Theme.fontSizeSmall
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+        DankIcon {
+            name: root.isActive ? "wifi_tethering" : "wifi_tethering_off"
+            color: root.isActive ? Theme.primary : Theme.surfaceVariantText
+            size: Theme.iconSize - 4
         }
     }
 
