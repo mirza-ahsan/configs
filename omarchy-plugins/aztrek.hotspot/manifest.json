@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "aztrek.hotspot",
+  "name": "Hotspot",
+  "version": "1.0.0",
+  "author": "aztrek",
+  "license": "MIT",
+  "description": "Share your wired connection as a Wi-Fi hotspot: toggle it, rename the network, change the password and pick the band from the Omarchy bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Hotspot",
+    "description": "Turn a Wi-Fi hotspot on or off and change its name, password and band.",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

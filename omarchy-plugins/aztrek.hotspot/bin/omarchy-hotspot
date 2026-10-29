@@ -1,0 +1,317 @@
+#!/bin/bash
+
+# Wi-Fi hotspot control for the Omarchy bar widget (aztrek.hotspot).
+# Shares the current uplink (Ethernet, USB tether, ...) over the Wi-Fi radio
+# through NetworkManager's own "shared" connection mode; nothing here needs root.
+#
+# Usage: omarchy-hotspot status|on|off|toggle|get-password
+#        omarchy-hotspot set-password <8-63 chars> | set-ssid <name> | set-band <5|2.4>
+#
+# Every command prints one JSON object (the hotspot status) on stdout. Failures
+# exit non-zero and carry a human-readable "error" in that object.
+
+CONN="omarchy-hotspot"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy-hotspot"
+PREF_FILE="$STATE_DIR/band"        # preferred band: 5 or 2.4
+LAST_FILE="$STATE_DIR/last"        # band actually used + note, from the last start
+CLIENT_FILE="$STATE_DIR/was-client" # Wi-Fi client connection to restore after stopping
+LOCK_FILE="$STATE_DIR/lock"
+
+mkdir -p "$STATE_DIR"
+
+wifi_iface() {
+  nmcli -t -f DEVICE,TYPE device 2>/dev/null | awk -F: '$2=="wifi" {print $1; exit}'
+}
+
+IFACE=$(wifi_iface)
+
+is_active() {
+  nmcli -t -f NAME connection show --active 2>/dev/null | grep -Fxq "$CONN"
+}
+
+conn_exists() {
+  nmcli -t -f NAME connection show 2>/dev/null | grep -Fxq "$CONN"
+}
+
+# First default-route device that is a real uplink: not the Wi-Fi radio itself,
+# and not a tunnel or container/VM bridge (VPN, tailscale, docker...), which
+# are not something to hand to Wi-Fi clients.
+uplink_iface() {
+  ip -o route show default 2>/dev/null | awk -v w="$IFACE" '
+    {
+      for (i = 1; i <= NF; i++) {
+        if ($i == "dev") {
+          d = $(i + 1)
+          if (d != w && d !~ /^(lo|tun|tap|wg|tailscale|ppp|docker|br-|veth|virbr|vnet)/) { print d; exit }
+        }
+      }
+    }'
+}
+
+preferred_band() {
+  local band
+  band=$(cat "$PREF_FILE" 2>/dev/null)
+  [[ $band == 2.4 ]] && echo 2.4 || echo 5
+}
+
+# `--escape no`: terse mode otherwise backslash-escapes ':' and '\' in values,
+# which would corrupt names and passwords that contain them.
+nm_get() {
+  nmcli --escape no -g "$1" connection show "$CONN" 2>/dev/null
+}
+
+# Field names are matched on the first word of the line, not anywhere in it:
+# `iw` prints "ssid <name>" before "type", so a network called "mytype" would
+# otherwise be mistaken for the interface type.
+current_channel() {
+  iw dev "$IFACE" info 2>/dev/null | awk '$1 == "channel" {print $2; exit}'
+}
+
+current_iface_type() {
+  iw dev "$IFACE" info 2>/dev/null | awk '$1 == "type" {print $2; exit}'
+}
+
+station_count() {
+  iw dev "$IFACE" station dump 2>/dev/null | grep -c '^Station'
+}
+
+# 5 GHz channels this radio may start an access point on right now. The
+# firmware marks channels it may only listen on "no IR" (no initiating
+# radiation) and DFS channels need radar detection, so neither is usable. On
+# many Intel cards every 5 GHz channel is "no IR" until the regulatory domain is
+# known, and trying one just burns the full activation timeout before failing.
+allowed_5ghz_channels() {
+  local phy
+  phy=$(iw dev "$IFACE" info 2>/dev/null | awk '$1 == "wiphy" {print "phy" $2; exit}')
+  [[ -n $phy ]] || return 0
+  iw phy "$phy" info 2>/dev/null | awk '
+    /\* [0-9.]+ MHz \[[0-9]+\]/ {
+      freq = $2 + 0
+      if (freq < 5150 || freq > 5895) next
+      if ($0 ~ /no IR|disabled|radar detection/) next
+      match($0, /\[[0-9]+\]/)
+      print substr($0, RSTART + 1, RLENGTH - 2)
+    }'
+}
+
+band5_available() {
+  [[ -n $(allowed_5ghz_channels) ]]
+}
+
+random_password() {
+  # No look-alike characters (0/O, 1/l/I) so it can be read out loud.
+  LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9' </dev/urandom | head -c 12
+}
+
+emit_status() {
+  local error="${1:-}" active=false ssid band_actual="" channel=0 clients=0 uplink note="" has_password=false available=false can_start=false band5=false
+
+  [[ -n $IFACE ]] && available=true
+  band5_available && band5=true
+  if is_active; then
+    active=true
+    channel=$(current_channel)
+    clients=$(station_count)
+    [[ -f $LAST_FILE ]] && band_actual=$(jq -r '.band // ""' "$LAST_FILE" 2>/dev/null) && note=$(jq -r '.note // ""' "$LAST_FILE" 2>/dev/null)
+  fi
+  ssid=$(nm_get 802-11-wireless.ssid)
+  [[ -z $ssid ]] && ssid="$(hostname)-hotspot"
+  [[ -n $(nmcli -s --escape no -g 802-11-wireless-security.psk connection show "$CONN" 2>/dev/null) ]] && has_password=true
+  uplink=$(uplink_iface)
+  [[ $available == true && -n $uplink ]] && can_start=true
+
+  jq -cn \
+    --argjson available "$available" \
+    --arg iface "${IFACE:-}" \
+    --argjson active "$active" \
+    --arg ssid "$ssid" \
+    --arg band "$(preferred_band)" \
+    --arg bandActual "$band_actual" \
+    --argjson channel "${channel:-0}" \
+    --argjson clients "${clients:-0}" \
+    --arg uplink "${uplink:-}" \
+    --argjson canStart "$can_start" \
+    --argjson hasPassword "$has_password" \
+    --argjson band5Available "$band5" \
+    --arg note "$note" \
+    --arg error "$error" \
+    '{available: $available, iface: $iface, active: $active, ssid: $ssid, band: $band,
+      bandActual: $bandActual, band5Available: $band5Available, channel: $channel,
+      clients: $clients, uplink: $uplink, canStart: $canStart, hasPassword: $hasPassword,
+      note: $note, error: $error}'
+}
+
+fail() {
+  emit_status "$1"
+  exit 1
+}
+
+lock() {
+  exec 9>"$LOCK_FILE"
+  flock -w 40 9 || fail "Another hotspot operation is still running"
+}
+
+valid_ssid() {
+  local len
+  len=$(printf %s "$1" | wc -c)
+  (( len >= 1 && len <= 32 )) && [[ $1 != *[[:cntrl:]]* ]]
+}
+
+valid_password() {
+  # WPA2-PSK passphrases are 8-63 printable ASCII characters. Matched as one
+  # string in the C locale: line-based tools (grep) would let an embedded
+  # newline through, and a UTF-8 locale would let non-ASCII letters through.
+  ( export LC_ALL=C; [[ $1 =~ ^[\ -~]{8,63}$ ]] )
+}
+
+ensure_connection() {
+  conn_exists && return 0
+  local ssid psk
+  ssid="$(hostname)-hotspot"
+  psk=$(random_password)
+  nmcli connection add type wifi ifname "$IFACE" con-name "$CONN" autoconnect no ssid "$ssid" \
+    802-11-wireless.mode ap \
+    802-11-wireless-security.key-mgmt wpa-psk \
+    802-11-wireless-security.proto rsn \
+    802-11-wireless-security.pairwise ccmp \
+    802-11-wireless-security.group ccmp \
+    802-11-wireless-security.psk "$psk" \
+    ipv4.method shared ipv6.method ignore >/dev/null 2>&1
+}
+
+# Bring the access point up on one band. Returns 0 only when the radio really
+# switched to AP mode (NetworkManager can report success before the firmware
+# refuses the channel).
+try_band() {
+  local band="$1" channel="$2" nm_band
+  [[ $band == 5 ]] && nm_band=a || nm_band=bg
+  nmcli connection modify "$CONN" 802-11-wireless.band "$nm_band" 802-11-wireless.channel "$channel" >/dev/null 2>&1 || return 1
+  nmcli --wait 20 connection up "$CONN" ifname "$IFACE" >/dev/null 2>&1 || return 1
+  sleep 1
+  [[ $(current_iface_type) == AP ]]
+}
+
+start_hotspot() {
+  [[ -n $IFACE ]] || fail "No Wi-Fi adapter found"
+  [[ $(nmcli radio wifi) == enabled ]] || nmcli radio wifi on >/dev/null 2>&1
+  [[ -n $(uplink_iface) ]] || fail "Needs an Ethernet or other non-Wi-Fi connection to share"
+  ensure_connection || fail "Could not create the hotspot connection"
+
+  # Remember a Wi-Fi client link so it can come back when the hotspot stops.
+  if [[ $(current_iface_type) == managed ]] && iw dev "$IFACE" link 2>/dev/null | grep -q '^Connected'; then
+    local client_conn
+    client_conn=$(nmcli -g GENERAL.CONNECTION device show "$IFACE" 2>/dev/null)
+    [[ -n $client_conn && $client_conn != "$CONN" ]] && printf '%s\n' "$client_conn" >"$CLIENT_FILE"
+  fi
+
+  local pref band_used="" note="" chan
+  pref=$(preferred_band)
+
+  if [[ $pref == 5 ]]; then
+    chan=$(allowed_5ghz_channels | head -n1)
+    if [[ -n $chan ]] && try_band 5 "$chan"; then
+      band_used=5
+    else
+      nmcli connection down "$CONN" >/dev/null 2>&1
+      note="5 GHz isn't allowed by this Wi-Fi card right now, using 2.4 GHz"
+    fi
+  fi
+  if [[ -z $band_used ]]; then
+    try_band 2.4 6 && band_used=2.4
+  fi
+
+  if [[ -z $band_used ]]; then
+    nmcli connection down "$CONN" >/dev/null 2>&1
+    restore_client
+    fail "The Wi-Fi card refused to start the hotspot"
+  fi
+
+  jq -cn --arg band "$band_used" --arg note "$note" '{band: $band, note: $note}' >"$LAST_FILE"
+}
+
+# Reconnect the exact Wi-Fi network that was in use before the hotspot started.
+# Never `nmcli device connect`: it picks the "best" connection for the radio,
+# and the hotspot profile itself can win that, turning the hotspot back on.
+restore_client() {
+  [[ -f $CLIENT_FILE ]] || return 0
+  local name
+  name=$(head -n1 "$CLIENT_FILE")
+  rm -f "$CLIENT_FILE"
+  if [[ -n $name && $name != "$CONN" ]]; then
+    nmcli connection up "$name" ifname "$IFACE" >/dev/null 2>&1 9>&- &
+  fi
+}
+
+# `stop_hotspot keep-client` is used for restarts: the Wi-Fi client link stays
+# parked (and remembered in $CLIENT_FILE) so it isn't reconnected only to be
+# dropped again a second later.
+stop_hotspot() {
+  is_active && nmcli connection down "$CONN" >/dev/null 2>&1
+  rm -f "$LAST_FILE"
+  [[ ${1:-} == keep-client ]] || restore_client
+}
+
+restart_if_active() {
+  if is_active; then
+    stop_hotspot keep-client
+    sleep 1
+    start_hotspot
+  fi
+}
+
+case "${1:-status}" in
+  status)
+    emit_status
+    ;;
+  on)
+    lock
+    is_active || start_hotspot
+    emit_status
+    ;;
+  off)
+    lock
+    stop_hotspot
+    emit_status
+    ;;
+  toggle)
+    lock
+    if is_active; then stop_hotspot; else start_hotspot; fi
+    emit_status
+    ;;
+  get-password)
+    nmcli -s --escape no -g 802-11-wireless-security.psk connection show "$CONN" 2>/dev/null || exit 1
+    ;;
+  set-password)
+    [[ -n ${2:-} ]] || fail "Enter a password"
+    valid_password "$2" || fail "Password must be 8-63 plain characters"
+    lock
+    [[ -n $IFACE ]] || fail "No Wi-Fi adapter found"
+    ensure_connection || fail "Could not create the hotspot connection"
+    nmcli connection modify "$CONN" 802-11-wireless-security.psk "$2" >/dev/null 2>&1 || fail "Could not save the password"
+    restart_if_active
+    emit_status
+    ;;
+  set-ssid)
+    [[ -n ${2:-} ]] || fail "Enter a network name"
+    valid_ssid "$2" || fail "Network name must be 1-32 characters"
+    lock
+    [[ -n $IFACE ]] || fail "No Wi-Fi adapter found"
+    ensure_connection || fail "Could not create the hotspot connection"
+    nmcli connection modify "$CONN" 802-11-wireless.ssid "$2" >/dev/null 2>&1 || fail "Could not save the network name"
+    restart_if_active
+    emit_status
+    ;;
+  set-band)
+    case "${2:-}" in
+      5 | 2.4) ;;
+      *) fail "Band must be 5 or 2.4" ;;
+    esac
+    lock
+    printf '%s\n' "$2" >"$PREF_FILE"
+    restart_if_active
+    emit_status
+    ;;
+  *)
+    fail "Unknown command: ${1}"
+    ;;
+esac
