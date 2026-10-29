@@ -1,0 +1,52 @@
+# Packages installed on top of a stock Omarchy install (pacman / official repos).
+# One per line; '#' lines are comments. Install with:  sudo pacman -S --needed - < <(grep -v '^#' pacman.txt | sed 's/ *#.*//')
+# Omarchy's own packages (omarchy, omarchy-settings, omarchy-keyring, tmux, neovim, clang, nvidia driver,
+# bluez, ufw, ...) already ship with the ISO and are not repeated here.
+
+# Editors / terminal
+ghostty
+zed
+visual-studio-code-bin   # AUR on some setups; see aur.txt if pacman cannot find it
+omazed                   # makes Zed follow the Omarchy theme (Omarchy's theme-set hook calls it)
+yazi
+
+# Shell
+zsh
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting
+
+# C / C++ / assembly / OpenMP  (clang + clangd + clang-format + gcc come with Omarchy)
+cmake
+nasm
+dosbox
+openmp
+
+# Go / Rust / Python toolchains
+go
+gopls
+rustup
+uv
+ruff
+python-ipykernel
+python-jupyter-client
+python-pynvim
+python-cairosvg
+
+# Git
+git-lfs
+
+# Hotspot widget (shared Wi-Fi via NetworkManager)
+dnsmasq
+iw                       # channel flags for 5 GHz selection
+
+# Apps
+brave-origin-bin
+claude-desktop
+spotify
+foliate                  # EPUB reader
+impression               # USB / ISO writer
+hplip                    # HP printer drivers; drop if you have no HP printer
+
+# Boot / low level (machine specific, harmless elsewhere)
+efibootmgr

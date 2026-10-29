@@ -1,0 +1,4 @@
+# AUR packages not in Omarchy. Install with yay (preinstalled on Omarchy):  yay -S --needed <name>
+pdfcraft-bin        # PDF toolbox; set as the default PDF handler (see docs/08-apps-and-defaults.md)
+vesktop-bin         # Discord client (the discord:// handler points at it)
+# artcraft-launcher # installed on the original laptop; optional

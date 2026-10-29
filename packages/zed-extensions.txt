@@ -1,0 +1,6 @@
+# Zed extensions. They install themselves because home/.config/zed/settings.json has "auto_install_extensions";
+# this list is only for reference. C/C++ (clangd), Go (gopls) and TypeScript/JavaScript (prettier) are built in.
+charmed-icons    # icon theme "Warm Charmed Icons"
+pyrefly          # Python type checker / LSP
+ruff             # Python linter / formatter LSP
+# The Zed color theme comes from the omazed package (see pacman.txt), not from an extension listed here.

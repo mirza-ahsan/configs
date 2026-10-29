@@ -1,0 +1,17 @@
+# Web apps used on the original machine. Create each with Omarchy's tool (it fetches the icon):
+#   omarchy-webapp-install "<name>" "<url>" "<icon-url-or-png>"
+# Super+W / G / Y already launch WhatsApp / GitHub / YouTube through snippets/hypr/bindings.lua.
+# Zoom is intentionally used as a web app, not the native client.
+# name	url
+WhatsApp	https://web.whatsapp.com
+GitHub	https://github.com
+YouTube	https://youtube.com
+YouTube Music	https://music.youtube.com
+Gemini	https://gemini.google.com
+NotebookLM	https://notebooklm.google.com
+Google Docs	https://docs.google.com
+Google Sheets	https://sheets.google.com
+Google Slides	https://slides.google.com
+Google Classroom	https://classroom.google.com/u/1/
+Excalidraw	https://excalidraw.com
+Discord	https://discord.com/app
