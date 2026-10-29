@@ -1,0 +1,75 @@
+{
+    // --- Omarchy ---
+    // workbench.colorTheme is deliberately absent: `omarchy theme set` writes it
+    // (needs the local.omarchy-theme extension, which Omarchy installs itself).
+    // VS Code is updated through pacman, not its own updater.
+    "update.mode": "none",
+    "editor.fontFamily": "'JetBrainsMono Nerd Font', monospace",
+    "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font'",
+    // --- Startup & Layout ---
+    "workbench.startupEditor": "none",
+    "window.commandCenter": false,
+    "workbench.layoutControl.enabled": false,
+    // --- AI & Copilot Lockdown ---
+    "chat.disableAIFeatures": true,
+    "git.addAICoAuthor": "off",
+    "editor.inlineSuggest.enabled": false,
+    "github.copilot.editor.enableAutoCompletions": false,
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    // --- GitLens AI Purge ---
+    "gitlens.ai.enabled": false,
+    "gitlens.ai.experimental.codelens": false,
+    "gitlens.plusFeatures.enabled": false,
+    // --- UI & Editor Customization ---
+    "window.titleBarStyle": "native",
+    "window.customTitleBarVisibility": "never",
+    "editor.fontSize": 18,
+    "editor.formatOnSave": true,
+    "editor.fontWeight": "bold",
+    "editor.mouseWheelZoom": true,
+    "notebook.output.scrolling": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "jupyter.askForKernelRestart": false,
+    "workbench.statusBar.visible": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
+    "git.openRepositoryInParentFolders": "never",
+    "security.workspace.trust.untrustedFiles": "open",
+    "makefile.configureOnOpen": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "code-runner.runInTerminal": true,
+    "code-runner.preserveFocus": false,
+    "code-runner.executorMap": {
+        "c": "cd $dir && clang $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "cpp": "cd $dir && clang++ -std=c++17 $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+    },
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "C_Cpp.autocomplete": "disabled",
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.formatting": "disabled",
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "window.menuBarVisibility": "hidden",
+    "window.dialogStyle": "custom",
+    "window.controlsStyle": "custom",
+    "window.menuStyle": "custom",
+    "update.showReleaseNotes": false,
+    "jupyter.widgetScriptSources": [
+        "jsdelivr.com",
+        "unpkg.com"
+    ],
+    "extensions.ignoreRecommendations": true
+}
