@@ -1,0 +1,31 @@
+# mode	source (relative to this repo)	target	note
+# copy   = install the file/dir at target (existing different file is backed up first)
+# link   = symlink target -> source file inside the installed tree
+# append = add the source as a marked block at the end of the target Lua file (re-running replaces the block)
+# manual = never applied by deploy.sh; the note says what to do (an AI or a human does it, see docs/)
+copy	home/.clang-format	~/.clang-format	C/C++ style for clang-format and clangd (docs/05)
+copy	home/.zshrc	~/.zshrc	Zsh on top of Omarchy's shell defaults (docs/04)
+copy	home/.config/starship.toml	~/.config/starship.toml	Prompt (no colors set, so it follows the terminal theme)
+copy	home/.config/ruff/ruff.toml	~/.config/ruff/ruff.toml	Global ruff fallback; project ruff configs win (docs/03)
+copy	home/.config/ghostty/config	~/.config/ghostty/config	Terminal behavior; colors come from Omarchy's theme include (docs/04)
+copy	home/.config/tmux/personal.conf	~/.config/tmux/personal.conf	Needs Omarchy's tmux.conf, which sources it (docs/04)
+copy	home/.config/zed/settings.json	~/.config/zed/settings.json	No theme key: the omazed hook sets it (docs/03)
+copy	home/.config/zed/keymap.json	~/.config/zed/keymap.json	Vim keymap (docs/03)
+copy	home/.config/Code/User/settings.json	~/.config/Code/User/settings.json	No colorTheme key: Omarchy writes it (docs/03)
+copy	home/.config/nvim/lua/config/options.lua	~/.config/nvim/lua/config/options.lua	On top of Omarchy's LazyVim (docs/03)
+copy	home/.config/nvim/lua/config/keymaps.lua	~/.config/nvim/lua/config/keymaps.lua	
+copy	home/.config/nvim/lua/config/autocmds.lua	~/.config/nvim/lua/config/autocmds.lua	
+copy	home/.config/nvim/lua/config/remote_clipboard.lua	~/.config/nvim/lua/config/remote_clipboard.lua	Required by options.lua
+copy	home/.config/nvim/lua/plugins/personal.lua	~/.config/nvim/lua/plugins/personal.lua	LSP, formatters, plugin tweaks
+copy	home/.config/nvim/lua/plugins/snacks-animated-scrolling-off.lua	~/.config/nvim/lua/plugins/snacks-animated-scrolling-off.lua	
+copy	home/.config/nvim/lua/plugins/disable-news-alert.lua	~/.config/nvim/lua/plugins/disable-news-alert.lua	
+append	snippets/hypr/bindings.lua	~/.config/hypr/bindings.lua	Keybinds (docs/02)
+append	snippets/hypr/input.lua	~/.config/hypr/input.lua	Touchpad/mouse/keyboard options; one device name is machine specific
+append	snippets/hypr/looknfeel.lua	~/.config/hypr/looknfeel.lua	Scrolling layout as default
+append	snippets/hypr/hyprland.lua	~/.config/hypr/hyprland.lua	Window rules at the end of the file
+manual	snippets/hypr/monitors.lua	~/.config/hypr/monitors.lua	Scale is hardware dependent: choose per display (docs/02)
+copy	omarchy-plugins/aztrek.hotspot	~/.config/omarchy/plugins/aztrek.hotspot	Hotspot bar widget (docs/07)
+link	~/.config/omarchy/plugins/aztrek.hotspot/bin/omarchy-hotspot	~/.local/bin/omarchy-hotspot	CLI backend of the widget
+manual	-	~/.config/omarchy/shell.toml	Set [font] base-size for the display (16 on the 3840x2400 14" panel); docs/02
+manual	-	~/.config/omarchy/shell.json	Add {"id":"aztrek.hotspot"} to bar.layout.right, then `omarchy plugin enable aztrek.hotspot` (docs/07)
+manual	-	~/.config/git/config	Omarchy ships good defaults; only set identity and run `git lfs install` (docs/01)
