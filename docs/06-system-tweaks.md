@@ -33,6 +33,22 @@ sudo cp /tmp/limine-wallpaper.jpg /boot/limine-wallpaper.jpg
 
 A mistake here only affects the boot menu look; the entries still boot. Changes show on the next reboot.
 
+### Boot order: Windows first, Omarchy still the default
+
+Entry order comes from each entry's `order-priority` comment (Omarchy 50, Windows 50, EFI fallback 10; ties keep
+Omarchy first), and it is applied when an entry is *inserted*, so re-add the Windows entry with a higher priority:
+
+```bash
+sudo cp /boot/limine.conf /boot/limine.conf.bak
+sudo limine-entry-tool --remove-entry "Windows 11"
+sudo limine-entry-tool --add-efi "Windows 11" /boot/EFI/Microsoft/Boot/bootmgfw.efi --comment "Windows 11" --priority 60
+```
+
+`default_entry` counts menu rows, so with Windows as row 1 the Omarchy kernel is row 3: set `default_entry: 3`
+(it was 2 when Omarchy was first). Rows are Windows, Omarchy, its kernel, then the fallback; collapsed snapshots
+are not counted. `omarchy-refresh-limine` resets the header, so redo the `default_entry` edit after it, and
+recheck it if kernels are added or removed.
+
 ## Firewall for the hotspot (ufw)
 
 ufw drops INPUT and FORWARD by default, which blocks DHCP/DNS for hotspot clients and their routing. Replace
