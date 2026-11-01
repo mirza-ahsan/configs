@@ -1,10 +1,9 @@
 # Web apps used on the original machine. Create each with Omarchy's tool (it fetches the icon):
 #   omarchy-webapp-install "<name>" "<url>" "<icon-url-or-png>"
-# Super+W / G / Y already launch WhatsApp / GitHub / YouTube through snippets/hypr/bindings.lua.
+# Super+W / Y launch WhatsApp / YouTube through snippets/hypr/bindings.lua; Super+G opens GitHub in Brave (no web app).
 # Zoom is intentionally used as a web app, not the native client.
 # name	url
 WhatsApp	https://web.whatsapp.com
-GitHub	https://github.com
 YouTube	https://youtube.com
 YouTube Music	https://music.youtube.com
 Gemini	https://gemini.google.com
