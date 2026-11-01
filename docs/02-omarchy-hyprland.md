@@ -19,12 +19,13 @@ Omarchy defaults stay, except for the keys below. List all bindings with `omarch
 | `SUPER+Z` | Zed | |
 | `SUPER+E` | File manager (nautilus) | |
 | `SUPER+W` | WhatsApp web app | Close window |
-| `SUPER+G` | GitHub web app | Toggle window grouping |
+| `SUPER+G` | GitHub in a Brave Origin tab (not a web app) | Toggle window grouping |
 | `SUPER+Y` | YouTube web app | |
 | `SUPER+C` | VS Code | Universal copy |
 | `SUPER+V` | Clipboard manager | Universal paste (clipboard manager was `SUPER+CTRL+V`) |
 | `SUPER+X` | System menu | Universal cut |
 | `SUPER+SHIFT+S` | Screenshot | Google Maps web app |
+| `SUPER+SHIFT+X`, `SUPER+SHIFT+ALT+X` | unbound | Omarchy's X and X Post web apps |
 
 Pattern: `hl.unbind("<chord>")` first, then `o.bind("<chord>", "<description>", <action>)`. Actions are a
 shell command string, `{ launch = "cmd" }`, `{ omarchy = "name" }`, `{ webapp = "url", focus = true }`, or an
