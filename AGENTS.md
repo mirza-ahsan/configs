@@ -73,4 +73,6 @@ When the owner changes a setting on the machine and wants it kept:
 2. For Hyprland, edit the matching file in `snippets/hypr/`, not the live-file copy.
 3. Update the matching doc under `docs/` with the *reason*, not just the value.
 4. Run `./deploy.sh --dry-run` against a scratch `HOME` to check the manifest still resolves.
-5. Do not commit or push unless the owner asks.
+5. Workflow for this repo, every time: `git pull --rebase --autostash` first, then commit each logically different
+   change as its own one-line commit starting with a lowercase letter (for example `add x`, `drop github web app`),
+   with no co-author trailer, then `git push`. Never force-push without the owner's explicit go-ahead.
