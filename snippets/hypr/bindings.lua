@@ -11,9 +11,9 @@ o.bind("SUPER + B", "Brave Origin", { launch = "brave-origin" })
 o.bind("SUPER + Z", "Zed", { launch = "zeditor" })
 o.bind("SUPER + E", "File manager", { omarchy = "nautilus" })
 o.bind("SUPER + W", "WhatsApp", { webapp = "https://web.whatsapp.com/", focus = true })
--- SUPER+G was Omarchy's "Toggle window grouping"
+-- SUPER+G was Omarchy's "Toggle window grouping"; GitHub opens as a Brave Origin tab, not a web app
 hl.unbind("SUPER + G")
-o.bind("SUPER + G", "GitHub", { webapp = "https://github.com/", focus = true })
+o.bind("SUPER + G", "GitHub", { launch = "brave-origin https://github.com/" })
 o.bind("SUPER + Y", "YouTube", { webapp = "https://youtube.com/", focus = true })
 -- SUPER+C was Omarchy's "Universal copy"
 hl.unbind("SUPER + C")
@@ -30,3 +30,7 @@ o.bind("SUPER + X", "System menu", "omarchy-menu toggle system")
 -- Screenshot (same as PRINT); SUPER+SHIFT+S was Omarchy's "Google Maps" webapp
 hl.unbind("SUPER + SHIFT + S")
 o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
+
+-- Omarchy's X web app bindings are not wanted (no X web app installed)
+hl.unbind("SUPER + SHIFT + X")
+hl.unbind("SUPER + SHIFT + ALT + X")
