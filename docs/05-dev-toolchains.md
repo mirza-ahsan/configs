@@ -56,5 +56,10 @@ Reference: `python/uv-gpu-pyproject.example.toml`. Key points:
 - `go` + `gopls` (pacman), `rustup` (run `rustup default stable`; Neovim's config points rust-analyzer at
   `/usr/lib/rustup/bin/rust-analyzer`, the rustup proxy), Node and
   npm come with Omarchy (mise manages `node` and `gh`).
-- mise: `~/.config/mise/config.toml` only keeps `gh` and `node`. Claude Code and Codex are intentionally **not**
-  installed through mise (native Claude Code is in `~/.local/bin`).
+- mise: Omarchy 4.5 ships `/etc/mise/conf.d/omarchy-tools.toml` (package `omarchy-settings`) that declares about
+  thirty tools as **lazy** (claude, codex, gh, node, opencode, ...). The first time you run one of those names, a mise
+  command wrapper in `~/.local/share/mise/command-wrappers/bin` downloads and installs it without asking, and the agent
+  CLIs then self-update at most every four hours (`auto_update = "4h"`, `minimum_release_age = "0s"`). The wrapper
+  directory comes first in `PATH` (set by Omarchy's `env-bootstrap`), so it also shadows a native `~/.local/bin/claude`.
+  The system file is overridable per tool in `~/.config/mise/config.toml`; the owner's file only keeps
+  `[settings.upgrade]`.
