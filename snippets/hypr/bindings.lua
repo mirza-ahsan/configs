@@ -2,9 +2,9 @@
 -- Every rebind first unbinds the Omarchy default it replaces (hl.unbind), then binds the key again.
 -- App launchers: change the commands to taste; keep the key choices unless the user says otherwise.
 
--- Close windows with SUPER+Q instead of SUPER+W
+-- SUPER+Q closes windows by default since Omarchy 4.5, so only SUPER+W needs freeing (for WhatsApp below).
+-- Do not bind SUPER+Q again here: Hyprland would run both binds and close two windows.
 hl.unbind("SUPER + W")
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 
 -- App shortcuts
 o.bind("SUPER + B", "Brave Origin", { launch = "brave-origin" })
