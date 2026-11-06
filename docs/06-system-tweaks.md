@@ -64,6 +64,12 @@ Needs the `dnsmasq` package (NetworkManager shared mode) — see `07`.
 
 ## Bluetooth
 
+- On Dell laptops Omarchy 4.5's Bluetooth "off" (`omarchy-bluetooth-power off`) is `rfkill block bluetooth`, which
+  hits the `dell-bluetooth` platform switch and cuts power to the USB adapter: the kernel logs
+  `Error when powering off device on rfkill (-110)` and `USB disconnect`, and `hci0` vanishes ("adapter not found").
+  `rfkill unblock bluetooth` brings it back within a few seconds. systemd-rfkill saves the block under
+  `/var/lib/systemd/rfkill/` and restores it at boot, which can interrupt the adapter's firmware download
+  (`Failed to send firmware data (-19)`) and leave no controller until you unblock.
 - If the bar icon disappears or Bluetooth "vanishes", the radio is soft-blocked: `rfkill list`, then
   `rfkill unblock bluetooth` and `sudo systemctl restart bluetooth`.
 - Low-energy mice change their address when put into pairing mode; remove the old pairing
