@@ -14,7 +14,7 @@ Omarchy defaults stay, except for the keys below. List all bindings with `omarch
 
 | Key | Action | Replaces |
 |---|---|---|
-| `SUPER+Q` | Close window | `SUPER+W` (freed for WhatsApp) |
+| `SUPER+Q` | Close window (Omarchy default since 4.5; no personal bind) | `SUPER+W` (unbound, freed for WhatsApp) |
 | `SUPER+B` | Brave Origin | |
 | `SUPER+Z` | Zed | |
 | `SUPER+E` | File manager (nautilus) | |
@@ -30,6 +30,23 @@ Omarchy defaults stay, except for the keys below. List all bindings with `omarch
 Pattern: `hl.unbind("<chord>")` first, then `o.bind("<chord>", "<description>", <action>)`. Actions are a
 shell command string, `{ launch = "cmd" }`, `{ omarchy = "name" }`, `{ webapp = "url", focus = true }`, or an
 `hl.dsp.*` dispatcher.
+
+## What changed in Omarchy 4.5 (checked on 4.5.0-3)
+
+Update from 4.0.x: the personal files above kept working; nothing needed rewriting except the duplicate
+`SUPER+Q` bind (4.5 binds Close window itself, so a second bind closes two windows).
+
+- Layout: `SUPER+L` cycles tiling, scrolling and floating per workspace (`SUPER+ALT+L` backwards); floating
+  workspaces get a dock. Workspaces are per monitor, so `SUPER+<number>` only switches the focused monitor.
+- Moved defaults: Calculator `SUPER+SHIFT+Q`, Activity `SUPER+SHIFT+T`, Network `SUPER+CTRL+N`; Nightlight has no
+  key (Trigger > Toggle). Drop-down console on `SUPER+backtick` or `SUPER+S`. Holding Right Alt or F9 is
+  push-to-talk dictation. `SUPER+I` toggles the input method.
+- Screenshots go to the clipboard by default (Omasnap); the personal `SUPER+SHIFT+S` bind still wins.
+- Update channel (Stable, RC, Edge, Dev) lives under Update > Channel.
+- Theme intros: a theme can ship a short clip in `backgrounds/intros/<wallpaper-name>.mp4`. It plays **once** at
+  login and when the theme or wallpaper changes, then the still wallpaper stays. That is by design, not a bug.
+  A looping video wallpaper is a video file placed in `~/.config/omarchy/backgrounds/<theme>/` (mp4, m4v, mov,
+  webm, mkv, avi); looping 4K costs noticeable CPU on weak machines.
 
 ## Layout
 
