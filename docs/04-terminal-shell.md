@@ -13,6 +13,7 @@ the only tmux file the repo owns. It changes behavior and keys only; colors stay
 | `prefix Ctrl+L` clears the screen | |
 | `escape-time 0`, `repeat-time 300` | no ESC delay in Neovim |
 | `default-command 'exec $SHELL'` | non-login interactive shell for every pane |
+| `history-limit 10000` (Omarchy: 50000) | a full 50k-line pane of colored output (Claude Code, build logs) holds ~200 MB until the pane closes; 10k lines is ~40 MB |
 | Ghostty terminal features `RGB:sync:extkeys` | truecolor, tear-free redraw, modified keys through tmux |
 | status bar at the bottom, 12-hour clock | |
 | plugins: TPM + tmux-resurrect (`prefix Ctrl+S` save, `prefix Ctrl+R` restore) | |
