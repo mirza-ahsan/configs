@@ -1,0 +1,11 @@
+# Omarchy 4.5 declares ~30 tools as lazy in /etc/mise/conf.d/omarchy-tools.toml, and mise installs one the first time
+# its command is typed. Everything except gh and node is disabled here so typing a missing command just fails.
+[settings]
+disable_tools = [
+  "amp", "antigravity-cli", "basecamp", "claude", "codex", "copilot", "crush", "cursor-agent", "ghui", "grok",
+  "hey-cli", "http:devin", "http:kiro-cli", "hunk", "muse", "npm:@deepseek-ai/dsh", "npm:@kilocode/cli",
+  "npm:@minimax-ai/code", "npm:@moonshot-ai/kimi-code", "npm:cf", "npm:command-code", "npm:freebuff",
+  "oh-my-pi", "opencode", "ori", "pi", "playwright", "qwen", "uv",
+]
+
+[settings.upgrade]

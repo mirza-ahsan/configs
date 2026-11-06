@@ -7,6 +7,7 @@ copy	home/.clang-format	~/.clang-format	C/C++ style for clang-format and clangd 
 copy	home/.zshrc	~/.zshrc	Zsh on top of Omarchy's shell defaults (docs/04)
 copy	home/.config/starship.toml	~/.config/starship.toml	Prompt (no colors set, so it follows the terminal theme)
 copy	home/.config/ruff/ruff.toml	~/.config/ruff/ruff.toml	Global ruff fallback; project ruff configs win (docs/03)
+copy	home/.config/mise/config.toml	~/.config/mise/config.toml	Disables Omarchy 4.5 lazy auto-installed tools except gh and node (docs/05)
 copy	home/.config/ghostty/config	~/.config/ghostty/config	Terminal behavior; colors come from Omarchy's theme include (docs/04)
 copy	home/.config/tmux/personal.conf	~/.config/tmux/personal.conf	Needs Omarchy's tmux.conf, which sources it (docs/04)
 copy	home/.config/zed/settings.json	~/.config/zed/settings.json	No theme key: the omazed hook sets it (docs/03)
