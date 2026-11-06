@@ -61,5 +61,10 @@ Reference: `python/uv-gpu-pyproject.example.toml`. Key points:
   command wrapper in `~/.local/share/mise/command-wrappers/bin` downloads and installs it without asking, and the agent
   CLIs then self-update at most every four hours (`auto_update = "4h"`, `minimum_release_age = "0s"`). The wrapper
   directory comes first in `PATH` (set by Omarchy's `env-bootstrap`), so it also shadows a native `~/.local/bin/claude`.
-  The system file is overridable per tool in `~/.config/mise/config.toml`; the owner's file only keeps
-  `[settings.upgrade]`.
+  The system file is overridable per tool in `~/.config/mise/config.toml`.
+  The owner disabled every lazy tool except `gh` and `node` with `disable_tools` in `home/.config/mise/config.toml`
+  (deployed to `~/.config/mise/config.toml`). `claude`, `codex` and `grok` still go through Omarchy's account-switch
+  wrapper (`/etc/mise/conf.d/omarchy-agent-accounts.toml`), which now falls through to the native
+  `~/.local/bin/claude` and fails with "not a valid shim" for the others instead of installing them. Delete leftover
+  installs and the `~/.local/bin/kimi` stub that Omarchy created; the stub runs `mise use -g` and would add itself
+  to the global config.
