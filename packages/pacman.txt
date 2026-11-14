@@ -38,6 +38,7 @@ python-cairosvg
 # Git
 git-lfs
 github-cli               # gh; from pacman, not mise (GitHub release downloads are slow here, docs/05)
+aria2                    # multi-connection GitHub downloads for AUR builds (makepkg-dlagent, docs/05)
 
 # Hotspot widget (shared Wi-Fi via NetworkManager)
 dnsmasq

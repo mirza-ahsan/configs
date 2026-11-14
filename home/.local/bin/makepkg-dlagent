@@ -1,0 +1,35 @@
+#!/bin/bash
+# makepkg download agent (DLAGENTS http/https in ~/.config/pacman/makepkg.conf).
+# Usage: makepkg-dlagent <output-file> <url>
+#
+# GitHub release assets come from a CDN that this connection throttles to ~30 KB/s
+# per connection, so those use aria2c with 16 connections (~16x faster). Every
+# other URL uses makepkg's stock curl command.
+set -uo pipefail
+
+out=$1
+url=$2
+
+curl_default() {
+  exec /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o "$out" "$url"
+}
+
+case "$url" in
+  https://github.com/*/releases/download/* | \
+  https://objects.githubusercontent.com/* | \
+  https://release-assets.githubusercontent.com/* | \
+  https://raw.githubusercontent.com/*)
+    if command -v aria2c >/dev/null; then
+      aria2c --max-connection-per-server=16 --split=16 --min-split-size=1M \
+        --continue=true --allow-overwrite=true --auto-file-renaming=false \
+        --file-allocation=none --max-tries=5 --retry-wait=3 \
+        --summary-interval=0 --console-log-level=warn --download-result=hide \
+        --dir="$(dirname -- "$out")" --out="$(basename -- "$out")" -- "$url" && exit 0
+      echo "makepkg-dlagent: aria2c failed, retrying with curl" >&2
+    fi
+    curl_default
+    ;;
+  *)
+    curl_default
+    ;;
+esac
