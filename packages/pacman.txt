@@ -28,6 +28,8 @@ gopls
 rustup
 uv
 ruff
+nodejs                   # node + npm from pacman, not mise (docs/05)
+npm
 python-ipykernel
 python-jupyter-client
 python-pynvim
@@ -35,6 +37,7 @@ python-cairosvg
 
 # Git
 git-lfs
+github-cli               # gh; from pacman, not mise (GitHub release downloads are slow here, docs/05)
 
 # Hotspot widget (shared Wi-Fi via NetworkManager)
 dnsmasq
