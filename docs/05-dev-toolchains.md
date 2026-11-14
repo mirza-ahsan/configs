@@ -54,17 +54,30 @@ Reference: `python/uv-gpu-pyproject.example.toml`. Key points:
 ## Go, Rust, JavaScript
 
 - `go` + `gopls` (pacman), `rustup` (run `rustup default stable`; Neovim's config points rust-analyzer at
-  `/usr/lib/rustup/bin/rust-analyzer`, the rustup proxy), Node and
-  npm come with Omarchy (mise manages `node` and `gh`).
+  `/usr/lib/rustup/bin/rust-analyzer`, the rustup proxy). `node`/`npm` and `gh` come from pacman (`nodejs`, `npm`,
+  `github-cli`), not mise; see "Slow GitHub release downloads" below.
 - mise: Omarchy 4.5 ships `/etc/mise/conf.d/omarchy-tools.toml` (package `omarchy-settings`) that declares about
   thirty tools as **lazy** (claude, codex, gh, node, opencode, ...). The first time you run one of those names, a mise
   command wrapper in `~/.local/share/mise/command-wrappers/bin` downloads and installs it without asking, and the agent
   CLIs then self-update at most every four hours (`auto_update = "4h"`, `minimum_release_age = "0s"`). The wrapper
   directory comes first in `PATH` (set by Omarchy's `env-bootstrap`), so it also shadows a native `~/.local/bin/claude`.
   The system file is overridable per tool in `~/.config/mise/config.toml`.
-  The owner disabled every lazy tool except `gh` and `node` with `disable_tools` in `home/.config/mise/config.toml`
-  (deployed to `~/.config/mise/config.toml`). `claude`, `codex` and `grok` still go through Omarchy's account-switch
+  The owner disabled every lazy tool, `gh` and `node` included, with `disable_tools` in
+  `home/.config/mise/config.toml` (deployed to `~/.config/mise/config.toml`), so `mise up` (run by `omarchy update`)
+  has nothing to download. After deploying, run `mise reshim` and delete `~/.local/share/mise/installs/{gh,node}`
+  and `mise cache clear`. `claude`, `codex` and `grok` still go through Omarchy's account-switch
   wrapper (`/etc/mise/conf.d/omarchy-agent-accounts.toml`), which now falls through to the native
   `~/.local/bin/claude` and fails with "not a valid shim" for the others instead of installing them. Delete leftover
   installs and the `~/.local/bin/kimi` stub that Omarchy created; the stub runs `mise use -g` and would add itself
   to the global config.
+
+### Slow GitHub release downloads
+
+On the owner's connection GitHub **release assets** (`release-assets.githubusercontent.com`, also
+`raw.githubusercontent.com`; Fastly, IPv4 only) are throttled to about 30 KB/s **per connection**, on all four
+Fastly addresses. github.com itself, `git clone` and `codeload` tarballs are fast (3-5 MB/s, a different network),
+as are the Arch mirror (~9 MB/s) and nodejs.org (~16 MB/s). That is why `gh` and `node` come from pacman: mise
+downloads `gh` from GitHub releases. AUR `-bin` packages (`pdfcraft-bin`, `vesktop-bin`) still download from
+GitHub releases. The throttle is per connection (16 parallel connections measured ~550 KB/s), so a multi-connection
+downloader helps there; check with
+`curl -4 -o /dev/null -r 0-2999999 -w '%{speed_download}\n' -L <release-url>` before assuming it is the network.
