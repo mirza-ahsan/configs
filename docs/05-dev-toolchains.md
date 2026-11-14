@@ -78,6 +78,16 @@ On the owner's connection GitHub **release assets** (`release-assets.githubuserc
 Fastly addresses. github.com itself, `git clone` and `codeload` tarballs are fast (3-5 MB/s, a different network),
 as are the Arch mirror (~9 MB/s) and nodejs.org (~16 MB/s). That is why `gh` and `node` come from pacman: mise
 downloads `gh` from GitHub releases. AUR `-bin` packages (`pdfcraft-bin`, `vesktop-bin`) still download from
-GitHub releases. The throttle is per connection (16 parallel connections measured ~550 KB/s), so a multi-connection
-downloader helps there; check with
-`curl -4 -o /dev/null -r 0-2999999 -w '%{speed_download}\n' -L <release-url>` before assuming it is the network.
+GitHub releases. The throttle is per connection (16 parallel connections measured ~550 KB/s), so AUR builds
+download those with aria2c over 16 connections:
+
+- `home/.config/pacman/makepkg.conf` (makepkg reads `~/.config/pacman/makepkg.conf` after `/etc/makepkg.conf`)
+  replaces only the `http`/`https` entries of `DLAGENTS` with `~/.local/bin/makepkg-dlagent %o %u`.
+- `home/.local/bin/makepkg-dlagent` sends `github.com/*/releases/download/*`, `objects.githubusercontent.com`,
+  `release-assets.githubusercontent.com` and `raw.githubusercontent.com` URLs to `aria2c -x16 -s16`, falls back to
+  curl if aria2c fails, and runs makepkg's stock curl command for every other URL. Needs `aria2` (pacman.txt).
+- yay and `omarchy pkg aur add` build through makepkg, so both use it. Measured: a 15 MB release tarball in 70 s
+  instead of ~7 min. Undo by deleting the two files.
+
+Check the throttle with `curl -4 -o /dev/null -r 0-2999999 -w '%{speed_download}\n' -L <release-url>` before
+assuming it is the network.
