@@ -54,3 +54,9 @@ hplip                    # HP printer drivers; drop if you have no HP printer
 
 # Boot / low level (machine specific, harmless elsewhere)
 efibootmgr
+
+# Media: Arch splits VLC; without these VLC cannot decode H.264 (ffmpeg) or draw subtitles (freetype, ass)
+vlc
+vlc-plugin-ffmpeg
+vlc-plugin-freetype
+vlc-plugin-ass
