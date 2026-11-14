@@ -66,6 +66,9 @@ Update from 4.0.x: the personal files above kept working; nothing needed rewriti
 - Papers (PDF/EPUB viewer) floats like Evince does by default.
 - Brave Origin is treated like the other Chromium browsers (Omarchy's rule only matches `brave-browser`),
   so it gets the same slight transparency instead of the default app opacity.
+- VLC gets `idle_inhibit = "focus"`: it runs through XWayland and cannot ask Wayland to block idle, so Omarchy's
+  screensaver (150 s) started mid-playback. mpv is native Wayland and inhibits by itself. The rule only applies to
+  windows opened after it is loaded.
 
 ## Scaling and font size (MACHINE-SPECIFIC)
 
