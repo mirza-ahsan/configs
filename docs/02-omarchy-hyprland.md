@@ -101,3 +101,14 @@ text-size command.
 - Extra menu entries: `~/.config/omarchy/extensions/omarchy-menu.jsonc` (unused by the owner).
 - Night light: `~/.config/hypr/hyprsunset.conf` is Omarchy's default.
 - Boot menu look: `docs/06-system-tweaks.md`.
+
+## Screensaver guard (workaround for an Omarchy 4.5 race)
+
+Sometimes the screensaver opened tiled just below the top bar (not floating/fullscreen, scrollable, effect sized for the
+wrong window). The effect (`ttfx`) measures the terminal once at start and Omarchy's script only waits out the 80x24
+default size. `~/.local/bin/omarchy-screensaver-guard` (user service `omarchy-screensaver-guard`) watches Hyprland's
+event socket for `org.omarchy.screensaver` windows, forces float + fullscreen whenever they are not, and restarts the
+effect once the size has stopped changing so it is measured against the final size. Reproduced by turning off float and
+fullscreen on the window with `hl.dsp.window.float/fullscreen` dispatches; the guard repaired it in under 2 s.
+Remove when Omarchy fixes it: `systemctl --user disable --now omarchy-screensaver-guard`, then delete the script, the
+unit, and the two manifest rows.

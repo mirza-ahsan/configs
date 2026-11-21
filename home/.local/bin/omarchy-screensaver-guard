@@ -1,0 +1,55 @@
+#!/bin/bash
+# Workaround for an Omarchy 4.5 race: the screensaver window sometimes ends up below the top bar instead of
+# fullscreen, with the effect sized for the wrong window (it is measured once, at start).
+# Watches Hyprland for screensaver windows, forces float + fullscreen on the right workspace, waits until the size
+# has stopped changing, then restarts the effect once so it is measured against the final size.
+# Remove with: systemctl --user disable --now omarchy-screensaver-guard && rm ~/.local/bin/omarchy-screensaver-guard \
+#   ~/.config/systemd/user/omarchy-screensaver-guard.service
+CLASS=org.omarchy.screensaver
+
+sig=$(basename "$(dirname "$(ls -t "$XDG_RUNTIME_DIR"/hypr/*/.socket2.sock | head -1)")")
+hc() { hyprctl -i "$sig" "$@"; }
+dispatch() { hc dispatch "$1" >/dev/null 2>&1; }
+
+descends_from() { # pid ancestor
+  local p=$1
+  while [[ -n $p && $p -gt 1 ]]; do
+    [[ $p == "$2" ]] && return 0
+    p=$(awk '{print $4}' "/proc/$p/stat" 2>/dev/null)
+  done
+  return 1
+}
+
+settle() { # address: runs until the window closes
+  local addr=$1 last="" stable=0 restart=1 delay=0.05 info fl fs ws size pid t
+  while :; do
+    info=$(hc clients -j | jq -r --arg a "$addr" '.[]|select(.address==$a)|"\(.floating) \(.fullscreen) \(.workspace.name) \(.size[0])x\(.size[1]) \(.pid)"')
+    [[ -z $info ]] && return
+    read -r fl fs ws size pid <<<"$info"
+    if [[ $fl != true ]]; then
+      dispatch "hl.dsp.window.float({ action = \"on\", window = \"address:$addr\" })"; restart=1; stable=0; delay=0.05
+    fi
+    if [[ $fs != 2 ]]; then
+      dispatch "hl.dsp.window.fullscreen({ mode = \"fullscreen\", action = \"set\", window = \"address:$addr\" })"; restart=1; stable=0; delay=0.05
+    fi
+    if [[ $fl == true && $fs == 2 && $size == "$last" ]]; then
+      ((stable++))
+    else
+      stable=0
+    fi
+    last=$size
+    if ((stable >= 8 && restart)); then # ~0.4 s unchanged: measure the effect again against the final size
+      for t in $(pgrep -x ttfx); do
+        descends_from "$t" "$pid" && kill "$t" 2>/dev/null
+      done
+      restart=0; delay=0.25
+    fi
+    sleep "$delay"
+  done
+}
+
+socat -U - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$sig/.socket2.sock" | while IFS= read -r line; do
+  [[ $line == openwindow\>\>* ]] || continue
+  IFS=, read -r addr _ cls _ <<<"${line#openwindow>>}"
+  [[ $cls == "$CLASS" ]] && settle "0x$addr" &
+done

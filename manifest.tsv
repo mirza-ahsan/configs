@@ -32,3 +32,5 @@ link	~/.config/omarchy/plugins/aztrek.hotspot/bin/omarchy-hotspot	~/.local/bin/o
 manual	-	~/.config/omarchy/shell.toml	Set [font] base-size for the display (16 on the 3840x2400 14" panel); docs/02
 manual	-	~/.config/omarchy/shell.json	Add {"id":"aztrek.hotspot"} to bar.layout.right, then `omarchy plugin enable aztrek.hotspot` (docs/07)
 manual	-	~/.config/git/config	Omarchy ships good defaults; only set identity and run `git lfs install` (docs/01)
+copy	home/.local/bin/omarchy-screensaver-guard	~/.local/bin/omarchy-screensaver-guard	Workaround: keeps the screensaver fullscreen (Omarchy 4.5 race); remove when fixed upstream (docs/02)
+copy	home/.config/systemd/user/omarchy-screensaver-guard.service	~/.config/systemd/user/omarchy-screensaver-guard.service	User service for the guard above; systemctl --user enable --now omarchy-screensaver-guard
