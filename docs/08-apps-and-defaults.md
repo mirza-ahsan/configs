@@ -36,6 +36,14 @@ Omarchy's `~/.config/mimeapps.list` and Hyprland's `hyprland-mimeapps.list` hold
 `xdg-mime`, not by hand. If PdfCraft does not open files passed to it, check that the `Exec=` line of its
 `.desktop` file ends with a file placeholder (`%f` or `%u`).
 
+## Claude desktop
+
+`home/.config/claude-desktop-flags.conf` holds `--password-store=gnome-libsecret`; `/usr/bin/claude-desktop` reads
+that file on every launch. Electron only detects a keyring on GNOME, KDE and similar desktops, so on Hyprland it
+fell back to no keyring and showed a yellow "No system keyring" warning at the bottom right. The flag points it at
+the GNOME Keyring that Omarchy already runs (Secret Service). Restart the app after deploying; sign in again if it
+asks.
+
 ## Claude Code
 
 See `docs/01-bootstrap.md` ("Claude Code"). Settings in `~/.claude/` and `~/.claude.json` are deliberately not
