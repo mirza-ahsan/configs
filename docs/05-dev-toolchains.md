@@ -56,20 +56,13 @@ Reference: `python/uv-gpu-pyproject.example.toml`. Key points:
 - `go` + `gopls` (pacman), `rustup` (run `rustup default stable`; Neovim's config points rust-analyzer at
   `/usr/lib/rustup/bin/rust-analyzer`, the rustup proxy). `node`/`npm` and `gh` come from pacman (`nodejs`, `npm`,
   `github-cli`), not mise; see "Slow GitHub release downloads" below.
-- mise: Omarchy 4.5 ships `/etc/mise/conf.d/omarchy-tools.toml` (package `omarchy-settings`) that declares about
-  thirty tools as **lazy** (claude, codex, gh, node, opencode, ...). The first time you run one of those names, a mise
-  command wrapper in `~/.local/share/mise/command-wrappers/bin` downloads and installs it without asking, and the agent
-  CLIs then self-update at most every four hours (`auto_update = "4h"`, `minimum_release_age = "0s"`). The wrapper
-  directory comes first in `PATH` (set by Omarchy's `env-bootstrap`), so it also shadows a native `~/.local/bin/claude`.
-  The system file is overridable per tool in `~/.config/mise/config.toml`.
-  The owner disabled every lazy tool, `gh` and `node` included, with `disable_tools` in
-  `home/.config/mise/config.toml` (deployed to `~/.config/mise/config.toml`), so `mise up` (run by `omarchy update`)
-  has nothing to download. After deploying, run `mise reshim` and delete `~/.local/share/mise/installs/{gh,node}`
-  and `mise cache clear`. `claude`, `codex` and `grok` still go through Omarchy's account-switch
-  wrapper (`/etc/mise/conf.d/omarchy-agent-accounts.toml`), which now falls through to the native
-  `~/.local/bin/claude` and fails with "not a valid shim" for the others instead of installing them. Delete leftover
-  installs and the `~/.local/bin/kimi` stub that Omarchy created; the stub runs `mise use -g` and would add itself
-  to the global config.
+- mise is **removed** (pacman `mise-bin`, the `mise activate` line in `.zshrc`, and `~/.local/share/mise`, `~/.cache/mise`,
+  `~/.config/mise`, `~/.local/state/mise`). It was slow on the owner's connection and Omarchy 4.5's lazy tools
+  (`/etc/mise/conf.d/omarchy-tools.toml`, package `omarchy-settings`) auto-installed claude, codex, gh, node and about
+  thirty others on first use. Omarchy guards every mise call with `omarchy-cmd-present mise` and `omarchy update` skips
+  its mise step, so nothing breaks. A running session keeps stale mise entries in `PATH` until the next login.
+  `claude` is the native `~/.local/bin/claude`; `node`/`npm` and `gh` come from pacman. To bring mise back,
+  install `mise-bin` and re-add the activate line.
 
 ### Slow GitHub release downloads
 

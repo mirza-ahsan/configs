@@ -46,7 +46,6 @@ unalias ga gd 2>/dev/null
 for f in "$OMARCHY_PATH"/default/bash/fns/*; do source "$f"; done
 unset f
 
-command -v mise &>/dev/null && eval "$(mise activate zsh)"
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 [[ ${TERM:-} != "dumb" ]] && command -v starship &>/dev/null && eval "$(starship init zsh)"
 

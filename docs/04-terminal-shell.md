@@ -38,7 +38,7 @@ keys to it, and note that Ctrl+A (readline "start of line") is untouched.
 Built on Omarchy's shell defaults (`$OMARCHY_PATH/default/bash/{envs,aliases,fns,completions}`):
 
 - oh-my-zsh with only the `git` plugin, **no theme**; prompt is starship (`home/.config/starship.toml`, no colors,
-  so it follows the terminal theme). mise, zoxide and fzf are activated when present.
+  so it follows the terminal theme). zoxide and fzf are activated when present.
 - History: 100k entries, deduplicated, shared between sessions. Completion cache on.
 - `zsh-autosuggestions` configured for async use; `KEYTIMEOUT=1`; `Ctrl+L` clears the screen.
 - Aliases: `fastfetch` with the Arch logo, `:q` exits.

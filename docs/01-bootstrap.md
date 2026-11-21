@@ -47,8 +47,7 @@ exceptions kept outside it (`~/configs`, `~/aiml`).
 
 ## Claude Code
 
-- Native Claude Code lives at `~/.local/bin/claude` (installed by Omarchy's agent hook). Do not also install it
-  through mise.
+- Native Claude Code lives at `~/.local/bin/claude` (installed by Omarchy's agent hook). mise is not installed (docs/05).
 - `~/.claude/settings.json` enables the plugins `frontend-design@claude-plugins-official` and
   `clangd-lsp@claude-plugins-official`. Enable them with `/plugin` if missing.
 - The owner marked `/` as trusted in `~/.claude.json` (`projects["/"].hasTrustDialogAccepted = true`) so Claude

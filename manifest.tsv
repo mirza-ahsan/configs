@@ -7,7 +7,6 @@ copy	home/.clang-format	~/.clang-format	C/C++ style for clang-format and clangd 
 copy	home/.zshrc	~/.zshrc	Zsh on top of Omarchy's shell defaults (docs/04)
 copy	home/.config/starship.toml	~/.config/starship.toml	Prompt (no colors set, so it follows the terminal theme)
 copy	home/.config/ruff/ruff.toml	~/.config/ruff/ruff.toml	Global ruff fallback; project ruff configs win (docs/03)
-copy	home/.config/mise/config.toml	~/.config/mise/config.toml	Disables every Omarchy 4.5 lazy auto-installed tool; gh and node come from pacman (docs/05)
 copy	home/.config/pacman/makepkg.conf	~/.config/pacman/makepkg.conf	AUR builds download GitHub release files with aria2c, 16 connections (docs/05)
 copy	home/.local/bin/makepkg-dlagent	~/.local/bin/makepkg-dlagent	Download agent used by makepkg.conf above; needs aria2
 copy	home/.config/claude-desktop-flags.conf	~/.config/claude-desktop-flags.conf	Claude desktop uses GNOME Keyring on Hyprland (docs/08)
