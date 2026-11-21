@@ -10,6 +10,7 @@ copy	home/.config/ruff/ruff.toml	~/.config/ruff/ruff.toml	Global ruff fallback; 
 copy	home/.config/mise/config.toml	~/.config/mise/config.toml	Disables every Omarchy 4.5 lazy auto-installed tool; gh and node come from pacman (docs/05)
 copy	home/.config/pacman/makepkg.conf	~/.config/pacman/makepkg.conf	AUR builds download GitHub release files with aria2c, 16 connections (docs/05)
 copy	home/.local/bin/makepkg-dlagent	~/.local/bin/makepkg-dlagent	Download agent used by makepkg.conf above; needs aria2
+copy	home/.config/claude-desktop-flags.conf	~/.config/claude-desktop-flags.conf	Claude desktop uses GNOME Keyring on Hyprland (docs/08)
 copy	home/.config/ghostty/config	~/.config/ghostty/config	Terminal behavior; colors come from Omarchy's theme include (docs/04)
 copy	home/.config/tmux/personal.conf	~/.config/tmux/personal.conf	Needs Omarchy's tmux.conf, which sources it (docs/04)
 copy	home/.config/zed/settings.json	~/.config/zed/settings.json	No theme key: the omazed hook sets it (docs/03)
